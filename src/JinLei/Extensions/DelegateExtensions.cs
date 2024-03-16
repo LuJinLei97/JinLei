@@ -1,7 +1,7 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace JinLei.Extensions;
+/*
 public static partial class DelegateExtensions
 {
     public static TNewDelegate CreateNewDelegate<TNewDelegate>(this Delegate d, Converter<object[], object[]> paramsConverter = default, Delegate resultConverter = default) where TNewDelegate : Delegate
@@ -50,6 +50,7 @@ public static partial class DelegateExtensions
 
     public static TNewDelegate SubParams<TNewDelegate>(this Delegate d, params object[] defalutParamObjects) where TNewDelegate : Delegate => d.CreateNewDelegate<TNewDelegate>((params object[] @params) => @params.Take(@params.Length - defalutParamObjects.Length).Append(defalutParamObjects).ToArray());
 }
+*/
 
 public static class MethodInfoExtensions
 {
