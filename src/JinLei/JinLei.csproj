@@ -1,0 +1,74 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net4.8;net8.0-windows</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Version>2.17.0</Version>
+    <UseWPF>True</UseWPF>
+    <UseWindowsForms>True</UseWindowsForms>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net4.8'">
+    <PackageReference Include="Microsoft.Activities.Extensions" Version="2.0.6.9" />
+    <Reference Include="System.Activities.Core.Presentation" />
+    <Reference Include="System.ServiceModel.Activities" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Extensions\DelegateExtensions0.tt">
+      <DependentUpon>DelegateExtensions.cs</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DelegateExtensions0.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\DelegateExtensions0.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DelegateExtensions0.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\ICollectionExtensions.cs">
+      <DependentUpon>IEnumerableExtensions.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\IDictionaryExtensions.cs">
+      <DependentUpon>IEnumerableExtensions.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\IListExtensions.cs">
+      <DependentUpon>IEnumerableExtensions.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\ForEachExtensions.cs">
+      <DependentUpon>IEnumerableExtensions.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\MethodChainExtensions.cs">
+      <DependentUpon>ObjectExtensions.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>
