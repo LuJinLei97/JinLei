@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Text.Json.Serialization;
 
 using JinLei.Extensions;
+
+using Newtonsoft.Json;
 
 namespace JinLei.Classes;
 public class TreeNode<TNode> where TNode : TreeNode<TNode>

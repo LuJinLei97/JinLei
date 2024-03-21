@@ -1,8 +1,9 @@
 ﻿using System.IO;
 using System.Net;
-using System.Text.Json.Nodes;
 
 using JinLei.Extensions;
+
+using Newtonsoft.Json.Linq;
 
 namespace JinLei.Utilities;
 public static partial class TranslateUtility
@@ -20,7 +21,7 @@ public static partial class TranslateUtility
 
         var result = WebClientUtility.WebClient.DownloadString(url);
 
-        return JsonObject.Parse(result)?["trans_result"]?[0]?["dst"]?.GetValue<string>();
+        return JToken.Parse(result)?["trans_result"]?[0]?["dst"]?.Value<string>();
     }
 
     /// <summary>
