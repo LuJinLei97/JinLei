@@ -1,10 +1,10 @@
-﻿using System.Reflection;
+﻿using System.Linq.Expressions;
+using System.Reflection;
 
 namespace JinLei.Extensions;
-/*
 public static partial class DelegateExtensions
 {
-    public static TNewDelegate CreateNewDelegate<TNewDelegate>(this Delegate d, Converter<object[], object[]> paramsConverter = default, Delegate resultConverter = default) where TNewDelegate : Delegate
+    public static TDelegate ToTDelegate<TDelegate>(this Delegate d, Converter<object[], object[]> paramsConverter = default, Delegate resultConverter = default) where TDelegate : Delegate
     {
         try
         {
@@ -15,30 +15,29 @@ public static partial class DelegateExtensions
 
             var paramsConverterResult = (params object[] targetParams) => paramsConverter.IsNull() ? targetParams : paramsConverter(targetParams);
 
-            var targetParameterExpressions = typeof(TNewDelegate).GetMethod("Invoke").GetParameters().Select(p => Expression.Parameter(p.ParameterType, $"targetParameter_{p.Name}")).ToArray();
-            var sourceParameterExpressions = d.Method.GetParameters().Select(p => Expression.Parameter(p.ParameterType, $"sourceParameter_{p.Name}")).ToArray();
+            var targetInvokeInfo = typeof(TDelegate).GetMethod("Invoke");
 
-            var sourceParmsAssignExpression = Expression.Assign(Expression.Variable(typeof(object[]), "sourceParms"), Expression.Call(Expression.Constant(paramsConverterResult.Target), paramsConverterResult.Method, Expression.NewArrayInit(typeof(object), targetParameterExpressions.Select(p => Expression.TypeAs(p, typeof(object))))));
-            var sourceResultExpression = Expression.Call(Expression.Constant(d.Target), d.Method, sourceParameterExpressions.Select((p, i) => Expression.Unbox(Expression.ArrayIndex(sourceParmsAssignExpression.Left, Expression.Constant(i)), p.Type)));
+            var targetParameterExpressions = targetInvokeInfo.GetParameters().Select(p => Expression.Parameter(p.ParameterType, $"targetParameter_{p.Name}")).ToArray();
+            var sourceParameterExpressions = d.GetType().GetMethod("Invoke").GetParameters().Select(p => Expression.Parameter(p.ParameterType, $"sourceParameter_{p.Name}")).ToArray();
 
-            var blockVariables = new List<ParameterExpression> { sourceParmsAssignExpression.Left as dynamic };
+            var sourceParmsAssignExpression = Expression.Assign(Expression.Variable(typeof(object[])), Expression.Invoke(Expression.Constant(paramsConverterResult), Expression.NewArrayInit(typeof(object), targetParameterExpressions.Select(p => Expression.Convert(p, typeof(object))))));
+            var sourceResultExpression = Expression.Invoke(Expression.Constant(d), sourceParameterExpressions.Select((p, i) => Expression.Convert(Expression.ArrayIndex(sourceParmsAssignExpression.Left, Expression.Constant(i)), p.Type)));
+
+            var blockVariables = new List<ParameterExpression> { sourceParmsAssignExpression.Left as ParameterExpression };
             var blockExpressions = new List<Expression> { sourceParmsAssignExpression, sourceResultExpression };
-            if(resultConverter != null)
+            if(resultConverter.IsNull() == false)
             {
                 if(d.Method.ReturnType == typeof(void))
                 {
-                    blockExpressions.Add(Expression.Call(Expression.Constant(resultConverter.Target), resultConverter.Method, Array.Empty<ParameterExpression>()));
+                    blockExpressions.Add(Expression.Empty());
+                    blockExpressions.Add(Expression.Invoke(Expression.Constant(resultConverter)));
                 } else
                 {
-                    var sourceResultAssignExpression = Expression.Assign(Expression.Variable(d.Method.ReturnType), sourceResultExpression);
-
-                    blockVariables.Add(sourceResultAssignExpression.Left as dynamic);
-                    blockExpressions[blockExpressions.Count - 1] = sourceResultAssignExpression;
-                    blockExpressions.Add(Expression.Call(Expression.Constant(resultConverter.Target), resultConverter.Method, resultConverter.Method.GetParameters().Select((p, i) => i == 0 ? sourceResultAssignExpression.Left : Expression.Default(p.ParameterType)).ToArray()));
+                    blockExpressions[blockExpressions.Count - 1] = Expression.Convert(Expression.Invoke(Expression.Constant(resultConverter), sourceResultExpression), targetInvokeInfo.ReturnType);
                 }
             }
 
-            var lambdaExpression = Expression.Lambda<TNewDelegate>(Expression.Block(blockVariables.ToArray(), [.. blockExpressions]), targetParameterExpressions);
+            var lambdaExpression = Expression.Lambda<TDelegate>(Expression.Block(blockVariables.ToArray(), [.. blockExpressions]), targetParameterExpressions);
 
             return lambdaExpression.Compile();
         } catch { }
@@ -46,11 +45,14 @@ public static partial class DelegateExtensions
         return default;
     }
 
-    public static TNewDelegate AddParams<TNewDelegate>(this Delegate d, params object[] paramObjects) where TNewDelegate : Delegate => d.CreateNewDelegate<TNewDelegate>((params object[] @params) => @params.Take(@params.Length - paramObjects.Length).ToArray());
+    public static TDelegate AddParams<TDelegate>(this Delegate d, params object[] paramObjects) where TDelegate : Delegate => d.ToTDelegate<TDelegate>((object[] @params) => @params.Take(@params.Length - paramObjects.Length).ToArray());
 
-    public static TNewDelegate SubParams<TNewDelegate>(this Delegate d, params object[] defalutParamObjects) where TNewDelegate : Delegate => d.CreateNewDelegate<TNewDelegate>((params object[] @params) => @params.Take(@params.Length - defalutParamObjects.Length).Append(defalutParamObjects).ToArray());
+    public static TDelegate SubParams<TDelegate>(this Delegate d, params object[] defalutParamObjects) where TDelegate : Delegate => d.ToTDelegate<TDelegate>((object[] @params) => @params.Take(@params.Length - defalutParamObjects.Length).Append(defalutParamObjects).ToArray());
+
+    public static TFunc ToFunc<TDelegate, TFunc, TResult>(this TDelegate d, TResult result = default) where TDelegate : Delegate where TFunc : Delegate => d.ToTDelegate<TFunc>(resultConverter: () => result);
+
+    public static TAction ToAction<TDelegate, TAction>(this TDelegate d) where TDelegate : Delegate where TAction : Delegate => d.ToTDelegate<TAction>(resultConverter: (object result) => { });
 }
-*/
 
 public static class MethodInfoExtensions
 {

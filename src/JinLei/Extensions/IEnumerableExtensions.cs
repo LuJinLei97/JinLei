@@ -24,19 +24,27 @@ public static partial class IEnumerableExtensions
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
     /// </summary>
-    public static List<TResult> ForEachDoDelegate<TSource, TResult>(this IEnumerable<TSource> items, Delegate itemFunc, Delegate wherePredicate = default, Delegate whilePredicate = default)
+    public static IEnumerable<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, TResult> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default) => ForEachDoDelegate<TSource, TResult>(items, @delegate, whilePredicate);
+
+    #region ForEach
+    /// <summary>
+    /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
+    /// </summary>
+    public static IEnumerable<TResult> ForEachDoDelegate<TSource, TResult>(this IEnumerable<TSource> items, Delegate @delegate, Delegate wherePredicate = default, Delegate whilePredicate = default)
     {
-        if(itemFunc.IsNull())
+        if(@delegate.IsNull())
         {
-            return [];
+            yield break;
         }
 
-        var itemFuncResult = itemFunc switch
+        var itemFuncResult = @delegate switch
         {
             Func<TSource, int, TResult> d => d,
             Func<TSource, TResult> d => d.AddParam(1),
+            Func<TResult> d => d.AddParam(default(TSource)).AddParam(1),
             Action<TSource, int> d => d.ToFunc(default(TResult)),
             Action<TSource> d => d.AddParam(1).ToFunc(default(TResult)),
+            Action d => d.AddParam(default(TSource)).AddParam(1).ToFunc(default(TResult)),
             _ => throw new NotImplementedException(),
         };
 
@@ -44,6 +52,7 @@ public static partial class IEnumerableExtensions
         {
             Func<TSource, int, bool> d => d,
             Func<TSource, bool> d => d.AddParam(1),
+            Func<bool> d => d.AddParam(default(TSource)).AddParam(1),
             null => (t, i) => true,
             _ => throw new NotImplementedException(),
         };
@@ -56,44 +65,36 @@ public static partial class IEnumerableExtensions
             _ => throw new NotImplementedException(),
         };
 
-        //return items.GetSelfOrEmpty().TakeWhile(whilePredicateResult).Where(wherePredicateResult).Select(itemFuncResult).ToListOrEmpty();
-
-        var results = new LinkedList<TResult>();
-        foreach(var item in items.GetSelfOrEmpty().SelectIndexValue())
+        var enumerator = items.GetSelfOrEmpty().GetEnumerator();
+        for(var i = 0; enumerator.MoveNext(); i++)
         {
-            if(whilePredicateResult(item.Value, item.Key) == false)
+            if(whilePredicateResult(enumerator.Current, i) == false)
             {
-                break;
+                yield break;
             }
 
-            if(wherePredicateResult(item.Value, item.Key))
+            if(wherePredicateResult(enumerator.Current, i))
             {
-                results.AddLast(itemFuncResult(item.Value, item.Key));
+                yield return itemFuncResult(enumerator.Current, i);
             }
         }
-
-        return [.. results];
     }
 
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
     /// </summary>
-    public static List<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, TResult> itemFunc, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default) => ForEachDoDelegate<TSource, TResult>(items, itemFunc, whilePredicate);
+    public static IEnumerable<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, TResult> @delegate, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default) => ForEachDoDelegate<TSource, TResult>(items, @delegate, whilePredicate);
 
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
     /// </summary>
-    public static List<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, TResult> itemFunc, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default) => ForEachDoDelegate<TSource, TResult>(items, itemFunc, whilePredicate);
+    public static void ForEach<TSource>(this IEnumerable<TSource> items, Action<TSource, int> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default) => ForEachDoDelegate<TSource, object>(items, @delegate, whilePredicate);
 
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
     /// </summary>
-    public static void ForEach<TSource>(this IEnumerable<TSource> items, Action<TSource, int> itemAction, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default) => ForEachDoDelegate<TSource, object>(items, itemAction, whilePredicate);
-
-    /// <summary>
-    /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
-    /// </summary>
-    public static void ForEach<TSource>(this IEnumerable<TSource> items, Action<TSource> itemAction, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default) => ForEachDoDelegate<TSource, object>(items, itemAction, whilePredicate);
+    public static void ForEach<TSource>(this IEnumerable<TSource> items, Action<TSource> @delegate, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default) => ForEachDoDelegate<TSource, object>(items, @delegate, whilePredicate);
+    #endregion
 }
 
 public static partial class ICollectionExtensions

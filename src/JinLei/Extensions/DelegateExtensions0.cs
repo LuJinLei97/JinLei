@@ -38,37 +38,37 @@ public static partial class DelegateExtensions
     #endregion
 
     #region FuncAddParam
-    public static Func<TParam, TResult> AddParam<TParam, TResult>(this Func<TResult> func, TParam param) => func.IsNull() ? default : (p) => func();
+    public static Func<TParam, TResult> AddParam<TParam, TResult>(this Func<TResult> func, TParam param = default) => func.IsNull() ? default : (p) => func();
 
-    public static Func<T1, TParam, TResult> AddParam<T1, TParam, TResult>(this Func<T1, TResult> func, TParam param) => func.IsNull() ? default : (t1, p) => func(t1);
+    public static Func<T1, TParam, TResult> AddParam<T1, TParam, TResult>(this Func<T1, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, p) => func(t1);
 
-    public static Func<T1, T2, TParam, TResult> AddParam<T1, T2, TParam, TResult>(this Func<T1, T2, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, p) => func(t1, t2);
+    public static Func<T1, T2, TParam, TResult> AddParam<T1, T2, TParam, TResult>(this Func<T1, T2, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, p) => func(t1, t2);
 
-    public static Func<T1, T2, T3, TParam, TResult> AddParam<T1, T2, T3, TParam, TResult>(this Func<T1, T2, T3, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, p) => func(t1, t2, t3);
+    public static Func<T1, T2, T3, TParam, TResult> AddParam<T1, T2, T3, TParam, TResult>(this Func<T1, T2, T3, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, p) => func(t1, t2, t3);
 
-    public static Func<T1, T2, T3, T4, TParam, TResult> AddParam<T1, T2, T3, T4, TParam, TResult>(this Func<T1, T2, T3, T4, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, p) => func(t1, t2, t3, t4);
+    public static Func<T1, T2, T3, T4, TParam, TResult> AddParam<T1, T2, T3, T4, TParam, TResult>(this Func<T1, T2, T3, T4, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, p) => func(t1, t2, t3, t4);
 
-    public static Func<T1, T2, T3, T4, T5, TParam, TResult> AddParam<T1, T2, T3, T4, T5, TParam, TResult>(this Func<T1, T2, T3, T4, T5, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, p) => func(t1, t2, t3, t4, t5);
+    public static Func<T1, T2, T3, T4, T5, TParam, TResult> AddParam<T1, T2, T3, T4, T5, TParam, TResult>(this Func<T1, T2, T3, T4, T5, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, p) => func(t1, t2, t3, t4, t5);
 
-    public static Func<T1, T2, T3, T4, T5, T6, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, p) => func(t1, t2, t3, t4, t5, t6);
+    public static Func<T1, T2, T3, T4, T5, T6, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, p) => func(t1, t2, t3, t4, t5, t6);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, p) => func(t1, t2, t3, t4, t5, t6, t7);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, p) => func(t1, t2, t3, t4, t5, t6, t7);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, p) => func(t1, t2, t3, t4, t5, t6, t7, t8);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, p) => func(t1, t2, t3, t4, t5, t6, t7, t8);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15);
     #endregion
 
     #region FuncSubParam
@@ -176,36 +176,36 @@ public static partial class DelegateExtensions
     #endregion
 
     #region ActionSubParam
-    public static Action SubParam<T1>(this Action<T1> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action SubParam<T1>(this Action<T1> action, T1 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1> SubParam<T1, T2>(this Action<T1, T2> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1> SubParam<T1, T2>(this Action<T1, T2> action, T2 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2> SubParam<T1, T2, T3>(this Action<T1, T2, T3> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2> SubParam<T1, T2, T3>(this Action<T1, T2, T3> action, T3 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3> SubParam<T1, T2, T3, T4>(this Action<T1, T2, T3, T4> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3> SubParam<T1, T2, T3, T4>(this Action<T1, T2, T3, T4> action, T4 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4> SubParam<T1, T2, T3, T4, T5>(this Action<T1, T2, T3, T4, T5> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4> SubParam<T1, T2, T3, T4, T5>(this Action<T1, T2, T3, T4, T5> action, T5 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4, T5> SubParam<T1, T2, T3, T4, T5, T6>(this Action<T1, T2, T3, T4, T5, T6> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4, T5> SubParam<T1, T2, T3, T4, T5, T6>(this Action<T1, T2, T3, T4, T5, T6> action, T6 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4, T5, T6> SubParam<T1, T2, T3, T4, T5, T6, T7>(this Action<T1, T2, T3, T4, T5, T6, T7> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4, T5, T6> SubParam<T1, T2, T3, T4, T5, T6, T7>(this Action<T1, T2, T3, T4, T5, T6, T7> action, T7 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4, T5, T6, T7> SubParam<T1, T2, T3, T4, T5, T6, T7, T8>(this Action<T1, T2, T3, T4, T5, T6, T7, T8> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4, T5, T6, T7> SubParam<T1, T2, T3, T4, T5, T6, T7, T8>(this Action<T1, T2, T3, T4, T5, T6, T7, T8> action, T8 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4, T5, T6, T7, T8> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4, T5, T6, T7, T8> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> action, T9 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> action, T10 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> action, T11 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> action, T12 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> action, T13 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> action, T14 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> action, T15 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 
-    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> SubParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> action, T16 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
     #endregion
 }

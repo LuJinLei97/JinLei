@@ -7,32 +7,20 @@ public static partial class ObjectExtensions
 
     public static TSource Out<TSource>(this TSource source, out TSource result) => result = source;
 
-    public static List<TResult> DoDelegates<TSource, TResult>(this TSource source, IEnumerable<Delegate> delegates, Func<TSource, bool> condition = default) => (delegates?.ForEach(d => new[] { source }.ForEachDoDelegate<TSource, TResult>(d, condition).FirstOrDefault())).ToListOrEmpty();
+    public static TResult Do<TSource, TResult>(this TSource source, Func<TSource, TResult> @delegate, Func<TSource, bool> condition = default) => source.DoDelegate<TSource, TResult>(@delegate, condition);
 
-    public static List<TResult> Do<TSource, TResult>(this TSource source, IEnumerable<Func<TSource, TResult>> delegates, Func<TSource, bool> condition = default) => source.DoDelegates<TSource, TResult>(delegates, condition);
+    #region Do
+    public static TResult DoDelegate<TSource, TResult>(this TSource source, Delegate @delegate, Delegate condition = default) => new[] { source }.ForEachDoDelegate<TSource, TResult>(@delegate, condition).FirstOrDefault();
 
-    public static List<TResult> Do<TSource, TResult>(this TSource source, IEnumerable<Func<TResult>> delegates, Func<TSource, bool> condition = default) => source.DoDelegates<TSource, TResult>(delegates, condition);
+    public static TResult Do<TSource, TResult>(this TSource source, Func<TResult> @delegate, Func<TSource, bool> condition = default) => source.DoDelegate<TSource, TResult>(@delegate, condition);
 
-    public static TSource Do<TSource, TResult>(this TSource source, IEnumerable<Func<TSource, TResult>> delegates, out List<TResult> results, Func<TSource, bool> condition = default) => source.Do(delegates, condition).Out(out results).Return(source);
+    public static TSource Do<TSource, TResult>(this TSource source, Func<TSource, TResult> @delegate, out TResult result, Func<TSource, bool> condition = default) => source.Do(@delegate, condition).Out(out result).Return(source);
 
-    public static TSource Do<TSource, TResult>(this TSource source, IEnumerable<Func<TResult>> delegates, out List<TResult> results, Func<TSource, bool> condition = default) => source.Do(delegates, condition).Out(out results).Return(source);
+    public static TSource Do<TSource, TResult>(this TSource source, Func<TResult> @delegate, TResult result, Func<TSource, bool> condition = default) => source.Do(@delegate, condition).Out(out result).Return(source);
 
-    public static TSource Do<TSource>(this TSource source, IEnumerable<Action<TSource>> delegates, Func<TSource, bool> condition = default) => source.DoDelegates<TSource, object>(delegates, condition).Return(source);
+    public static TSource Do<TSource>(this TSource source, Action<TSource> @delegate, Func<TSource, bool> condition = default) => source.DoDelegate<TSource, object>(@delegate, condition).Return(source);
 
-    public static TSource Do<TSource>(this TSource source, IEnumerable<Action> delegates, Func<TSource, bool> condition = default) => source.DoDelegates<TSource, object>(delegates, condition).Return(source);
-
-    #region DoSingleDelegate
-    public static TResult Do<TSource, TResult>(this TSource source, Func<TSource, TResult> delegates, Func<TSource, bool> condition = default) => source.Do(new[] { delegates }, condition).FirstOrDefault();
-
-    public static TResult Do<TSource, TResult>(this TSource source, Func<TResult> delegates, Func<TSource, bool> condition = default) => source.Do(new[] { delegates }, condition).FirstOrDefault();
-
-    public static TSource Do<TSource, TResult>(this TSource source, Func<TSource, TResult> delegates, out TResult results, Func<TSource, bool> condition = default) => source.Do(delegates, condition).Out(out results).Return(source);
-
-    public static TSource Do<TSource, TResult>(this TSource source, Func<TResult> delegates, out TResult results, Func<TSource, bool> condition = default) => source.Do(delegates, condition).Out(out results).Return(source);
-
-    public static TSource Do<TSource>(this TSource source, Action<TSource> delegates, Func<TSource, bool> condition = default) => source.Do(new[] { delegates }, condition);
-
-    public static TSource Do<TSource>(this TSource source, Action delegates, Func<TSource, bool> condition = default) => source.Do(new[] { delegates }, condition);
+    public static TSource Do<TSource>(this TSource source, Action @delegate, Func<TSource, bool> condition = default) => source.DoDelegate<TSource, object>(@delegate, condition).Return(source);
     #endregion
 
     public static bool Is<TResult>(this object o, out TResult result)

@@ -13,33 +13,33 @@ public static partial class DelegateExtensions
     {
         typeNameList.Add($"T{i}");
     }
+
+    string GetTypeNames(IEnumerable<string> typeNameList) => typeNameList.Aggregate((t1, t2) => $"{t1}, {t2}");
 #>
     #region ToAction
     public static Action ToAction<TResult>(this Func<TResult> func) => func.IsNull() ? default : () => func();
 <#
     var toActionTemplate = @"
-    public static Action<{typeNames}> ToAction<{typeNames}, TResult>(this Func<{typeNames}, TResult> func) => func.IsNull() ? default : ({typeParams}) => func({typeParams});";
+    public static Action<{0}> ToAction<{0}, TResult>(this Func<{0}, TResult> func) => func.IsNull() ? default : ({1}) => func({1});";
 
     for(var i = 1; i <= 16; i++)
     {
-        var curTypeNameList = typeNameList.GetRange(0, i);
-        var typeNames = curTypeNameList.Aggregate((t1, t2) => $"{t1}, {t2}");
-        WriteLine(toActionTemplate.Replace("{typeNames}", typeNames).Replace("{typeParams}", typeNames.ToLower()));
+        var typeNames = GetTypeNames(typeNameList.GetRange(0, i));
+        WriteLine(string.Format(toActionTemplate, typeNames, typeNames.ToLower()));
     }
 #>
     #endregion
 
     #region FuncAddParam
-    public static Func<TParam, TResult> AddParam<TParam, TResult>(this Func<TResult> func, TParam param) => func.IsNull() ? default : (p) => func();
+    public static Func<TParam, TResult> AddParam<TParam, TResult>(this Func<TResult> func, TParam param = default) => func.IsNull() ? default : (p) => func();
 <#
     var funcAddParamTemplate = @"
-    public static Func<{typeNames}, TParam, TResult> AddParam<{typeNames}, TParam, TResult>(this Func<{typeNames}, TResult> func, TParam param) => func.IsNull() ? default : ({typeParams}, p) => func({typeParams});";
+    public static Func<{0}, TParam, TResult> AddParam<{0}, TParam, TResult>(this Func<{0}, TResult> func, TParam param = default) => func.IsNull() ? default : ({1}, p) => func({1});";
 
     for(var i = 1; i <= 15; i++)
     {
-        var curTypeNameList = typeNameList.GetRange(0, i);
-        var typeNames = curTypeNameList.Aggregate((t1, t2) => $"{t1}, {t2}");
-        WriteLine(funcAddParamTemplate.Replace("{typeNames}", typeNames).Replace("{typeParams}", typeNames.ToLower()));
+        var typeNames = GetTypeNames(typeNameList.GetRange(0, i));
+        WriteLine(string.Format(funcAddParamTemplate, typeNames, typeNames.ToLower()));
     }
 #>
     #endregion
@@ -48,16 +48,14 @@ public static partial class DelegateExtensions
     public static Func<TResult> SubParam<T1, TResult>(this Func<T1, TResult> func, T1 defaultParam = default) => func.IsNull() ? default : () => func(defaultParam);
 <#
     var funcSubParamTemplate = @"
-    public static Func<{preTypeNames}, TResult> SubParam<{typeNames}, TResult>(this Func<{typeNames}, TResult> func, {lastTypeName} defaultParam = default) => func.IsNull() ? default : ({preTypeParams}) => func({preTypeParams}, defaultParam);";
+    public static Func<{1}, TResult> SubParam<{0}, TResult>(this Func<{0}, TResult> func, {3} defaultParam = default) => func.IsNull() ? default : ({2}) => func({2}, defaultParam);";
 
     for(var i = 2; i <= 16; i++)
     {
-        var curTypeNameList = typeNameList.GetRange(0, i);
-        var typeNames = curTypeNameList.Aggregate((t1, t2) => $"{t1}, {t2}");
-        var lastTypeName = typeNameList[i - 1];
-        var preTypeNameList = typeNameList.GetRange(0, i - 1);
-        var preTypeNames = preTypeNameList.Aggregate((t1, t2) => $"{t1}, {t2}");
-        WriteLine(funcSubParamTemplate.Replace("{typeNames}", typeNames).Replace("{preTypeNames}", preTypeNames).Replace("{preTypeParams}", preTypeNames.ToLower()).Replace("{lastTypeName}", lastTypeName));
+        var typeNames = GetTypeNames(typeNameList.GetRange(0, i));
+        var preTypeNames = GetTypeNames(typeNameList.GetRange(0, i - 1));
+        var lastTypeName = typeNameList[i - 1]; 
+        WriteLine(string.Format(funcSubParamTemplate, typeNames, preTypeNames, preTypeNames.ToLower(), lastTypeName));
     }
 #>
     #endregion
@@ -66,13 +64,12 @@ public static partial class DelegateExtensions
     public static Func<TResult> ToFunc<TResult>(this Action action, TResult result = default) => action.IsNull() ? default : () => { action(); return result; };
 <#
     var toFuncTemplate = @"
-    public static Func<{typeNames}, TResult> ToFunc<{typeNames}, TResult>(this Action<{typeNames}> action, TResult result = default) => action.IsNull() ? default : ({typeParams}) => { action({typeParams}); return result; };";
+    public static Func<{0}, TResult> ToFunc<{0}, TResult>(this Action<{0}> action, TResult result = default) => action.IsNull() ? default : ({1}) => {{ action({1}); return result; }};";
 
     for(var i = 1; i <= 16; i++)
     {
-        var curTypeNameList = typeNameList.GetRange(0, i);
-        var typeNames = curTypeNameList.Aggregate((t1, t2) => $"{t1}, {t2}");
-        WriteLine(toFuncTemplate.Replace("{typeNames}", typeNames).Replace("{typeParams}", typeNames.ToLower()));
+        var typeNames = GetTypeNames(typeNameList.GetRange(0, i));
+        WriteLine(string.Format(toFuncTemplate, typeNames, typeNames.ToLower()));
     }
 #>
     #endregion
@@ -81,30 +78,28 @@ public static partial class DelegateExtensions
     public static Action<TParam> AddParam<TParam>(this Action action, TParam param) => action.ToFunc(true).AddParam(param).ToAction();
 <#
     var actionAddParamTemplate = @"
-    public static Action<{typeNames}, TParam> AddParam<{typeNames}, TParam>(this Action<{typeNames}> action, TParam param) => action.ToFunc(true).AddParam(param).ToAction();";
+    public static Action<{0}, TParam> AddParam<{0}, TParam>(this Action<{0}> action, TParam param) => action.ToFunc(true).AddParam(param).ToAction();";
 
     for(var i = 1; i <= 15; i++)
     {
-        var curTypeNameList = typeNameList.GetRange(0, i);
-        var typeNames = curTypeNameList.Aggregate((t1, t2) => $"{t1}, {t2}");
-        WriteLine(actionAddParamTemplate.Replace("{typeNames}", typeNames));
+        var typeNames = GetTypeNames(typeNameList.GetRange(0, i));
+        WriteLine(string.Format(actionAddParamTemplate, typeNames));
     }
 #>
     #endregion
 
     #region ActionSubParam
-    public static Action SubParam<T1>(this Action<T1> action) => action.ToFunc(true).SubParam().ToAction();
+    public static Action SubParam<T1>(this Action<T1> action, T1 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
 <#
     var actionSubParamTemplate = @"
-    public static Action<{preTypeNames}> SubParam<{typeNames}>(this Action<{typeNames}> action) => action.ToFunc(true).SubParam().ToAction();";
+    public static Action<{1}> SubParam<{0}>(this Action<{0}> action, {2} defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();";
 
     for(var i = 2; i <= 16; i++)
     {
-        var curTypeNameList = typeNameList.GetRange(0, i);
-        var typeNames = curTypeNameList.Aggregate((t1, t2) => $"{t1}, {t2}");
-        var preTypeNameList = typeNameList.GetRange(0, i - 1);
-        var preTypeNames = preTypeNameList.Aggregate((t1, t2) => $"{t1}, {t2}");
-        WriteLine(actionSubParamTemplate.Replace("{typeNames}", typeNames).Replace("{preTypeNames}", preTypeNames));
+        var typeNames = GetTypeNames(typeNameList.GetRange(0, i));
+        var preTypeNames = GetTypeNames(typeNameList.GetRange(0, i - 1));
+        var lastTypeName = typeNameList[i - 1]; 
+        WriteLine(string.Format(actionSubParamTemplate, typeNames, preTypeNames, lastTypeName));
     }
 #>
     #endregion
