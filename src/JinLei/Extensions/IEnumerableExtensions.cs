@@ -24,7 +24,7 @@ public static partial class IEnumerableExtensions
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
     /// </summary>
-    public static IEnumerable<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, TResult> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default) => ForEachDoDelegate<TSource, TResult>(items, @delegate, whilePredicate);
+    public static IEnumerable<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, TResult> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default) => items.ForEachDoDelegate<TSource, TResult>(@delegate, whilePredicate);
 
     #region ForEach
     /// <summary>
@@ -50,18 +50,19 @@ public static partial class IEnumerableExtensions
 
         var wherePredicateResult = wherePredicate switch
         {
+            null => (t, i) => true,
             Func<TSource, int, bool> d => d,
             Func<TSource, bool> d => d.AddParam(1),
             Func<bool> d => d.AddParam(default(TSource)).AddParam(1),
-            null => (t, i) => true,
             _ => throw new NotImplementedException(),
         };
 
         var whilePredicateResult = whilePredicate switch
         {
+            null => (t, i) => true,
             Func<TSource, int, bool> d => d,
             Func<TSource, bool> d => d.AddParam(1),
-            null => (t, i) => true,
+            Func<bool> d => d.AddParam(default(TSource)).AddParam(1),
             _ => throw new NotImplementedException(),
         };
 

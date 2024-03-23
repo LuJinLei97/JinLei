@@ -16,11 +16,15 @@ public static partial class ObjectExtensions
 
     public static TSource Do<TSource, TResult>(this TSource source, Func<TSource, TResult> @delegate, out TResult result, Func<TSource, bool> condition = default) => source.Do(@delegate, condition).Out(out result).Return(source);
 
-    public static TSource Do<TSource, TResult>(this TSource source, Func<TResult> @delegate, TResult result, Func<TSource, bool> condition = default) => source.Do(@delegate, condition).Out(out result).Return(source);
+    public static TSource Do<TSource, TResult>(this TSource source, Func<TResult> @delegate, out TResult result, Func<TSource, bool> condition = default) => source.Do(@delegate, condition).Out(out result).Return(source);
 
     public static TSource Do<TSource>(this TSource source, Action<TSource> @delegate, Func<TSource, bool> condition = default) => source.DoDelegate<TSource, object>(@delegate, condition).Return(source);
 
     public static TSource Do<TSource>(this TSource source, Action @delegate, Func<TSource, bool> condition = default) => source.DoDelegate<TSource, object>(@delegate, condition).Return(source);
+
+    public static TSource DoActions<TSource>(this TSource source, params Action<TSource>[] @delegates) => @delegates.ForEach(d => source.Do(d)).Return(source);
+
+    public static TSource DoActions<TSource>(this TSource source, params Action[] @delegates) => @delegates.ForEach(d => source.Do(d)).Return(source);
     #endregion
 
     public static bool Is<TResult>(this object o, out TResult result)
