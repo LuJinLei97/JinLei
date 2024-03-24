@@ -22,14 +22,14 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
 
             if(this is TNode node)
             {
-                if(parent?.Childs.Contains(node) == true)
+                if(parent?.Childs?.Contains(node) == true)
                 {
-                    parent?.Childs.Remove(node);
+                    parent?.Childs?.Remove(node);
                 }
 
-                if((parent = value)?.Childs.Contains(node) == false)
+                if((parent = value)?.Childs?.Contains(node) == false)
                 {
-                    parent?.Childs.Add(node);
+                    parent?.Childs?.Add(node);
                 }
             }
         }
