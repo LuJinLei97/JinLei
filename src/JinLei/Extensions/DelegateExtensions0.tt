@@ -31,10 +31,10 @@ public static partial class DelegateExtensions
     #endregion
 
     #region FuncAddParam
-    public static Func<TParam, TResult> AddParam<TParam, TResult>(this Func<TResult> func, TParam param = default) => func.IsNull() ? default : (p) => func();
+    public static Func<TParam, TResult> AddParam<TParam, TResult>(this Func<TResult> func, TParam param) => func.IsNull() ? default : (p) => func();
 <#
     var funcAddParamTemplate = @"
-    public static Func<{0}, TParam, TResult> AddParam<{0}, TParam, TResult>(this Func<{0}, TResult> func, TParam param = default) => func.IsNull() ? default : ({1}, p) => func({1});";
+    public static Func<{0}, TParam, TResult> AddParam<{0}, TParam, TResult>(this Func<{0}, TResult> func, TParam param) => func.IsNull() ? default : ({1}, p) => func({1});";
 
     for(var i = 1; i <= 15; i++)
     {

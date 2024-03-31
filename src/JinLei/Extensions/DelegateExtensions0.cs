@@ -38,37 +38,37 @@ public static partial class DelegateExtensions
     #endregion
 
     #region FuncAddParam
-    public static Func<TParam, TResult> AddParam<TParam, TResult>(this Func<TResult> func, TParam param = default) => func.IsNull() ? default : (p) => func();
+    public static Func<TParam, TResult> AddParam<TParam, TResult>(this Func<TResult> func, TParam param) => func.IsNull() ? default : (p) => func();
 
-    public static Func<T1, TParam, TResult> AddParam<T1, TParam, TResult>(this Func<T1, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, p) => func(t1);
+    public static Func<T1, TParam, TResult> AddParam<T1, TParam, TResult>(this Func<T1, TResult> func, TParam param) => func.IsNull() ? default : (t1, p) => func(t1);
 
-    public static Func<T1, T2, TParam, TResult> AddParam<T1, T2, TParam, TResult>(this Func<T1, T2, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, p) => func(t1, t2);
+    public static Func<T1, T2, TParam, TResult> AddParam<T1, T2, TParam, TResult>(this Func<T1, T2, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, p) => func(t1, t2);
 
-    public static Func<T1, T2, T3, TParam, TResult> AddParam<T1, T2, T3, TParam, TResult>(this Func<T1, T2, T3, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, p) => func(t1, t2, t3);
+    public static Func<T1, T2, T3, TParam, TResult> AddParam<T1, T2, T3, TParam, TResult>(this Func<T1, T2, T3, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, p) => func(t1, t2, t3);
 
-    public static Func<T1, T2, T3, T4, TParam, TResult> AddParam<T1, T2, T3, T4, TParam, TResult>(this Func<T1, T2, T3, T4, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, p) => func(t1, t2, t3, t4);
+    public static Func<T1, T2, T3, T4, TParam, TResult> AddParam<T1, T2, T3, T4, TParam, TResult>(this Func<T1, T2, T3, T4, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, p) => func(t1, t2, t3, t4);
 
-    public static Func<T1, T2, T3, T4, T5, TParam, TResult> AddParam<T1, T2, T3, T4, T5, TParam, TResult>(this Func<T1, T2, T3, T4, T5, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, p) => func(t1, t2, t3, t4, t5);
+    public static Func<T1, T2, T3, T4, T5, TParam, TResult> AddParam<T1, T2, T3, T4, T5, TParam, TResult>(this Func<T1, T2, T3, T4, T5, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, p) => func(t1, t2, t3, t4, t5);
 
-    public static Func<T1, T2, T3, T4, T5, T6, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, p) => func(t1, t2, t3, t4, t5, t6);
+    public static Func<T1, T2, T3, T4, T5, T6, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, p) => func(t1, t2, t3, t4, t5, t6);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, p) => func(t1, t2, t3, t4, t5, t6, t7);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, p) => func(t1, t2, t3, t4, t5, t6, t7);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, p) => func(t1, t2, t3, t4, t5, t6, t7, t8);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, p) => func(t1, t2, t3, t4, t5, t6, t7, t8);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14);
 
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> func, TParam param = default) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15);
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TParam, TResult> AddParam<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TParam, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> func, TParam param) => func.IsNull() ? default : (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, p) => func(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15);
     #endregion
 
     #region FuncSubParam

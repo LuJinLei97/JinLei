@@ -12,6 +12,8 @@ public static partial class ObjectExtensions
     #region Do
     public static TResult DoDelegate<TSource, TResult>(this TSource source, Delegate @delegate, Delegate condition = default) => new[] { source }.ForEachDoDelegate<TSource, TResult>(@delegate, condition).FirstOrDefault();
 
+    public static object DoDelegate<TSource>(this TSource source, Delegate @delegate, Delegate condition = default) => source.DoDelegate<TSource, object>(@delegate, condition);
+
     public static TResult Do<TSource, TResult>(this TSource source, Func<TResult> @delegate, Func<TSource, bool> condition = default) => source.DoDelegate<TSource, TResult>(@delegate, condition);
 
     public static TSource Do<TSource, TResult>(this TSource source, Func<TSource, TResult> @delegate, out TResult result, Func<TSource, bool> condition = default) => source.Do(@delegate, condition).Out(out result).Return(source);

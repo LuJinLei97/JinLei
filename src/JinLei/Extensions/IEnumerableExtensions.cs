@@ -80,6 +80,8 @@ public static partial class IEnumerableExtensions
         }
     }
 
+    public static IEnumerable<object> ForEachDoDelegate<TSource>(this IEnumerable<TSource> items, Delegate @delegate, Delegate wherePredicate = default, Delegate whilePredicate = default) => items.ForEachDoDelegate<TSource, object>(@delegate, wherePredicate, whilePredicate);
+
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
     /// </summary>
