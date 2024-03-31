@@ -183,7 +183,7 @@ public static partial class IDictionaryExtensions
         return items;
     }
 
-    public static bool TryGetValueNoException<TKey, TValue>(this IDictionary<TKey, TValue> keyValues, TKey key, out TValue result)
+    public static bool TryGetValueNonException<TKey, TValue>(this IDictionary<TKey, TValue> keyValues, TKey key, out TValue result)
     {
         if(key.IsNull() == false)
         {
