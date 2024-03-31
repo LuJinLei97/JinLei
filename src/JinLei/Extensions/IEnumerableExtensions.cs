@@ -19,7 +19,7 @@ public static partial class IEnumerableExtensions
     public static List<TSource> ToListOrEmpty<TSource>(this IEnumerable<TSource> items) => new LinkedList<TSource>(items.GetSelfOrEmpty()).ToList();
 
     #region List Functions
-    public static List<T> GetRange<T>(this IEnumerable<T> values, int index, int count) => values.GetSelfOrEmpty().Skip(index).Take(count).ToList();
+    public static List<T> GetRange<T>(this IEnumerable<T> values, int index, int count) => values.GetSelfOrEmpty().Skip(index).Take(count).ToListOrEmpty();
 
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
