@@ -4,7 +4,7 @@
     <TargetFrameworks>net4.8;net8.0-windows</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.7.0</Version>
+    <Version>2.8.0</Version>
     <UseWPF>True</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>

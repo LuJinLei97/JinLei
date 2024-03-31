@@ -8,8 +8,6 @@ public static partial class IEnumerableExtensions
 
     public static TEnumerable GetSelfOrEmpty<TEnumerable>(this TEnumerable items) where TEnumerable : IEnumerable, new() => items.GetValueOrDefault([]);
 
-    public static List<T> GetRange<T>(this IEnumerable<T> values, int index, int count) => values.GetSelfOrEmpty().Skip(index).Take(count).ToList();
-
     public static bool IsNullOrEmpty<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Any() == false;
 
     public static IEnumerable<KeyValuePair<int, T>> SelectIndexValue<T>(this IEnumerable<T> items) => items.GetSelfOrEmpty().Select((t, i) => new KeyValuePair<int, T>(i, t));
@@ -19,6 +17,9 @@ public static partial class IEnumerableExtensions
     public static bool CheckRange<TSource>(this IEnumerable<TSource> items, int index) => 0 <= index && index <= items.CountOrZero() - 1;
 
     public static List<TSource> ToListOrEmpty<TSource>(this IEnumerable<TSource> items) => new LinkedList<TSource>(items.GetSelfOrEmpty()).ToList();
+
+    #region List Functions
+    public static List<T> GetRange<T>(this IEnumerable<T> values, int index, int count) => values.GetSelfOrEmpty().Skip(index).Take(count).ToList();
 
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
@@ -94,25 +95,25 @@ public static partial class IEnumerableExtensions
     /// </summary>
     public static void ForEach<TSource>(this IEnumerable<TSource> items, Action<TSource> @delegate, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default) => ForEachDoDelegate<TSource, object>(items, @delegate, whilePredicate);
     #endregion
+    #endregion
 }
 
 public static partial class ICollectionExtensions
 {
-    public static TCollection Change<TCollection, TSource>(this TCollection items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add) where TCollection : ICollection<TSource>
+    public static TCollection Change<TCollection, TSource>(this TCollection items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue) where TCollection : ICollection<TSource>
     {
-        if(items.IsNull())
+        if(items.IsNull() == false)
         {
-        } else if(action == NotifyCollectionChangedAction.Reset)
-        {
-            items.Clear();
-        } else if(values.IsNullOrEmpty())
-        {
-        } else if(action == NotifyCollectionChangedAction.Add)
-        {
-            values.ForEach(items.Add);
-        } else if(action == NotifyCollectionChangedAction.Remove)
-        {
-            values.ForEach(items.Remove);
+            if(action == NotifyCollectionChangedAction.Add)
+            {
+                values?.ForEach((v, i) => items.Add(v), whilePredicate: (v, i) => i < count);
+            } else if(action == NotifyCollectionChangedAction.Remove)
+            {
+                values?.ForEach((v, i) => items.Remove(v), whilePredicate: (v, i) => i < count);
+            } else if(action == NotifyCollectionChangedAction.Reset)
+            {
+                items.Clear();
+            }
         }
 
         return items;
@@ -121,26 +122,36 @@ public static partial class ICollectionExtensions
 
 public static partial class IListExtensions
 {
-    public static TList Change<TList, TSource>(this TList items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int index = -1) where TList : IList<TSource>
+    public static TList Change<TList, TSource>(this TList items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue, int? startIndex = default) where TList : IList<TSource>
     {
-        if(items.CheckRange(index))
+        if(items.IsNull() == false)
         {
+            var index = startIndex.GetValueOrDefault(items.Count);
             if(action == NotifyCollectionChangedAction.Add)
             {
-                values?.ForEach(v => items.Insert(index++, v));
+                if(items.CheckRange(index))
+                {
+                    values?.ForEach((v, i) => items.Insert(index++, v), whilePredicate: (v, i) => i < count);
+                } else
+                {
+                    values?.ForEach((v, i) => items.Set(index++, v), whilePredicate: (v, i) => i < count);
+                }
             } else if(action == NotifyCollectionChangedAction.Remove)
             {
-                values?.ForEach(v => items.RemoveAt(index), whilePredicate: v => items.CheckRange(index));
+                if(items.CheckRange(index))
+                {
+                    Enumerable.Range(index, count).ForEach(items.RemoveAt, whilePredicate: items.CheckRange);
+                } else
+                {
+                    ICollectionExtensions.Change(items, values, action, count);
+                }
             } else if(action == NotifyCollectionChangedAction.Replace)
             {
-                values?.ForEach(v => items.Set(index++, v));
+                values?.ForEach((v, i) => items.Set(index++, v), whilePredicate: (v, i) => i < count && items.CheckRange(index));
             } else
             {
-                ICollectionExtensions.Change(items, values);
+                ICollectionExtensions.Change(items, values, action, count);
             }
-        } else
-        {
-            ICollectionExtensions.Change(items, values);
         }
 
         return items;
@@ -157,10 +168,10 @@ public static partial class IListExtensions
         {
             if(sources is List<TSource> list)
             {
-                list.Capacity = index + 1;
+                list.Capacity = index + 8;
             } else
             {
-                Enumerable.Range(sources.Count, index - sources.Count + 1).ForEach(t => sources.Add(default));
+                Enumerable.Range(sources.Count, index - sources.Count + 8).ForEach(t => sources.Add(default));
             }
         }
 
@@ -170,31 +181,20 @@ public static partial class IListExtensions
 
 public static partial class IDictionaryExtensions
 {
-    public static TDictionary Change<TDictionary, TKey, TValue>(this TDictionary items, IEnumerable<KeyValuePair<TKey, TValue>> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add) where TDictionary : IDictionary<TKey, TValue>
+    public static TDictionary Change<TDictionary, TKey, TValue>(this TDictionary items, IEnumerable<KeyValuePair<TKey, TValue>> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue) where TDictionary : IDictionary<TKey, TValue>
     {
         if(action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Replace)
         {
-            values?.ForEach(v => items[v.Key] = v.Value, v => action == NotifyCollectionChangedAction.Replace || items.ContainsKey(v.Key) == false);
+            values?.ForEach((v, i) => items[v.Key] = v.Value, (v, i) => action == NotifyCollectionChangedAction.Replace || items.ContainsKey(v.Key) == false, (v, i) => i < count);
         } else
         {
-            ICollectionExtensions.Change(items, values, action);
+            ICollectionExtensions.Change(items, values, action, count);
         }
 
         return items;
     }
 
-    public static bool TryGetValueNonException<TKey, TValue>(this IDictionary<TKey, TValue> keyValues, TKey key, out TValue result)
-    {
-        if(key.IsNull() == false)
-        {
-            try
-            {
-                return keyValues.TryGetValue(key, out result);
-            } catch { }
-        }
-
-        return (result = default).Return(false);
-    }
+    public static bool TryGetValueNonException<TKey, TValue>(this IDictionary<TKey, TValue> keyValues, TKey key, out TValue result) => (key.IsNull() == false).Do(() => default, out result) && keyValues.TryGetValue(key, out result);
 
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<TKey> keys, IEnumerable<TValue> values)
     {
