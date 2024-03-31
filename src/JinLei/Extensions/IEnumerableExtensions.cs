@@ -1,13 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
-using System.Dynamic;
 
 namespace JinLei.Extensions;
 public static partial class IEnumerableExtensions
 {
     public static IEnumerable<TSource> GetSelfOrEmpty<TSource>(this IEnumerable<TSource> items) => items.GetValueOrDefault(Enumerable.Empty<TSource>());
 
-    public static TEnumerable GetSelfOrEmpty<TEnumerable, TSource>(this TEnumerable items) where TEnumerable : IEnumerable<TSource>, new() => items.GetValueOrDefault([]);
+    public static TEnumerable GetSelfOrEmpty<TEnumerable>(this TEnumerable items) where TEnumerable : IEnumerable, new() => items.GetValueOrDefault([]);
 
     public static List<T> GetRange<T>(this IEnumerable<T> values, int index, int count) => values.GetSelfOrEmpty().Skip(index).Take(count).ToList();
 
@@ -17,7 +16,7 @@ public static partial class IEnumerableExtensions
 
     public static int CountOrZero<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Count();
 
-    public static bool CheckRange<TSource>(this IEnumerable<TSource> items, int index) => 0 <= index && index <= (items is ICollection<TSource> collection ? collection.Count : items.CountOrZero()) - 1;
+    public static bool CheckRange<TSource>(this IEnumerable<TSource> items, int index) => 0 <= index && index <= items.CountOrZero() - 1;
 
     public static List<TSource> ToListOrEmpty<TSource>(this IEnumerable<TSource> items) => new LinkedList<TSource>(items.GetSelfOrEmpty()).ToList();
 
@@ -66,17 +65,16 @@ public static partial class IEnumerableExtensions
             _ => throw new NotImplementedException(),
         };
 
-        var enumerator = items.GetSelfOrEmpty().GetEnumerator();
-        for(var i = 0; enumerator.MoveNext(); i++)
+        foreach(var item in items.SelectIndexValue())
         {
-            if(whilePredicateResult(enumerator.Current, i) == false)
+            if(whilePredicateResult(item.Value, item.Key) == false)
             {
                 yield break;
             }
 
-            if(wherePredicateResult(enumerator.Current, i))
+            if(wherePredicateResult(item.Value, item.Key))
             {
-                yield return itemFuncResult(enumerator.Current, i);
+                yield return itemFuncResult(item.Value, item.Key);
             }
         }
     }
@@ -100,7 +98,7 @@ public static partial class IEnumerableExtensions
 
 public static partial class ICollectionExtensions
 {
-    public static TCollection ChangeFrom<TCollection, TSource>(this TCollection items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add) where TCollection : ICollection<TSource>
+    public static TCollection Change<TCollection, TSource>(this TCollection items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add) where TCollection : ICollection<TSource>
     {
         if(items.IsNull())
         {
@@ -123,7 +121,7 @@ public static partial class ICollectionExtensions
 
 public static partial class IListExtensions
 {
-    public static TList ChangeFrom<TList, TSource>(this TList items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int index = -1) where TList : IList<TSource>
+    public static TList Change<TList, TSource>(this TList items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int index = -1) where TList : IList<TSource>
     {
         if(items.CheckRange(index))
         {
@@ -138,11 +136,11 @@ public static partial class IListExtensions
                 values?.ForEach(v => items.Set(index++, v));
             } else
             {
-                ICollectionExtensions.ChangeFrom(items, values);
+                ICollectionExtensions.Change(items, values);
             }
         } else
         {
-            ICollectionExtensions.ChangeFrom(items, values);
+            ICollectionExtensions.Change(items, values);
         }
 
         return items;
@@ -162,35 +160,24 @@ public static partial class IListExtensions
                 list.Capacity = index + 1;
             } else
             {
-                for(var currentIndex = sources.Count - 1; currentIndex < index; currentIndex++)
-                {
-                    sources.Add(default);
-                }
+                Enumerable.Range(sources.Count, index - sources.Count + 1).ForEach(t => sources.Add(default));
             }
         }
 
         sources[index] = value;
     }
-
-    public static void RemoveRange<T>(this IList<T> items, int index, int count)
-    {
-        for(var i = 1; i <= count && index < items.Count; i++)
-        {
-            items.RemoveAt(index);
-        }
-    }
 }
 
 public static partial class IDictionaryExtensions
 {
-    public static TDictionary ChangeFrom<TDictionary, TKey, TValue>(this TDictionary items, IEnumerable<KeyValuePair<TKey, TValue>> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add) where TDictionary : IDictionary<TKey, TValue>
+    public static TDictionary Change<TDictionary, TKey, TValue>(this TDictionary items, IEnumerable<KeyValuePair<TKey, TValue>> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add) where TDictionary : IDictionary<TKey, TValue>
     {
         if(action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Replace)
         {
             values?.ForEach(v => items[v.Key] = v.Value, v => action == NotifyCollectionChangedAction.Replace || items.ContainsKey(v.Key) == false);
         } else
         {
-            ICollectionExtensions.ChangeFrom(items, values, action);
+            ICollectionExtensions.Change(items, values, action);
         }
 
         return items;
@@ -209,9 +196,11 @@ public static partial class IDictionaryExtensions
         return (result = default).Return(false);
     }
 
-    public static ExpandoObject ToExpandoObject(this IDictionary<string, object> keyValues) => new ExpandoObject().ChangeFrom(keyValues);
-
-    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<TKey> keys, IEnumerable<TValue> values) => values.ToListOrEmpty().Do(values => keys.SelectIndexValue().ToDictionary(iv => iv.Value, iv => values.ElementAtOrDefault(iv.Key)));
+    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<TKey> keys, IEnumerable<TValue> values)
+    {
+        var valuesEnumerator = values.GetSelfOrEmpty().GetEnumerator();
+        return keys.GetSelfOrEmpty().ToDictionary(t => t, t => valuesEnumerator.MoveNext() ? valuesEnumerator.Current : default);
+    }
 
     public static KeyValuePair<TKey, TValue> ToKeyValuePair<TKey, TValue>(this DictionaryEntry dictionaryEntry) => new(dictionaryEntry.Key.AsOrDefault<TKey>(), dictionaryEntry.Value.AsOrDefault<TValue>());
 }
