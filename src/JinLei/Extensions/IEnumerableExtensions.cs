@@ -100,7 +100,7 @@ public static partial class IEnumerableExtensions
 
 public static partial class ICollectionExtensions
 {
-    public static TCollection Change<TCollection, TSource>(this TCollection items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue) where TCollection : ICollection<TSource>
+    public static void Change<TSource>(this ICollection<TSource> items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue)
     {
         if(items.IsNull() == false)
         {
@@ -115,14 +115,21 @@ public static partial class ICollectionExtensions
                 items.Clear();
             }
         }
-
-        return items;
     }
+
+    #region List Functions
+    public static int RemoveAll<TSource>(this ICollection<TSource> items, Predicate<TSource> match)
+    {
+        var count1 = items.Count;
+        items.Change(items.Where(t => match(t)), NotifyCollectionChangedAction.Remove);
+        return items.Count - count1;
+    }
+    #endregion
 }
 
 public static partial class IListExtensions
 {
-    public static TList Change<TList, TSource>(this TList items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue, int? startIndex = default) where TList : IList<TSource>
+    public static void Change<TSource>(this IList<TSource> items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue, int? startIndex = default)
     {
         if(items.IsNull() == false)
         {
@@ -153,8 +160,6 @@ public static partial class IListExtensions
                 ICollectionExtensions.Change(items, values, action, count);
             }
         }
-
-        return items;
     }
 
     public static void Set<TSource>(this IList<TSource> sources, int index, TSource value)
@@ -181,7 +186,7 @@ public static partial class IListExtensions
 
 public static partial class IDictionaryExtensions
 {
-    public static TDictionary Change<TDictionary, TKey, TValue>(this TDictionary items, IEnumerable<KeyValuePair<TKey, TValue>> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue) where TDictionary : IDictionary<TKey, TValue>
+    public static void Change<TKey, TValue>(this IDictionary<TKey, TValue> items, IEnumerable<KeyValuePair<TKey, TValue>> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue)
     {
         if(action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Replace)
         {
@@ -190,8 +195,6 @@ public static partial class IDictionaryExtensions
         {
             ICollectionExtensions.Change(items, values, action, count);
         }
-
-        return items;
     }
 
     public static bool TryGetValueNonException<TKey, TValue>(this IDictionary<TKey, TValue> keyValues, TKey key, out TValue result) => (key.IsNull() == false).Do(() => default, out result) && keyValues.TryGetValue(key, out result);

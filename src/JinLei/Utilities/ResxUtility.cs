@@ -7,7 +7,7 @@ using JinLei.Extensions;
 namespace JinLei.Utilities;
 public static partial class ResxUtility
 {
-    public static Dictionary<string, T> ReadToDictionary<T>(StreamReader streamReader, bool samKeyOverwriteValue = false) => new Dictionary<string, T>().Change(ReadToList<T>(streamReader), samKeyOverwriteValue ? NotifyCollectionChangedAction.Replace : NotifyCollectionChangedAction.Add);
+    public static Dictionary<string, T> ReadToDictionary<T>(StreamReader streamReader, bool samKeyOverwriteValue = false) => new Dictionary<string, T>().Do(t => t.Change(ReadToList<T>(streamReader), samKeyOverwriteValue ? NotifyCollectionChangedAction.Replace : NotifyCollectionChangedAction.Add));
 
     public static List<KeyValuePair<string, T>> ReadToList<T>(StreamReader streamReader, bool samKeyOverwriteValue = false)
     {
