@@ -16,6 +16,8 @@ public static partial class IEnumerableExtensions
 
     public static bool CheckRange<TSource>(this IEnumerable<TSource> items, int index) => 0 <= index && index <= items.CountOrZero() - 1;
 
+    public static TCollection ToTCollection<TCollection, TSource>(this IEnumerable<TSource> items) where TCollection : ICollection<TSource>, new() => new TCollection().Do(t => t.Change(items.GetSelfOrEmpty()));
+
     public static List<TSource> ToListOrEmpty<TSource>(this IEnumerable<TSource> items) => new LinkedList<TSource>(items.GetSelfOrEmpty()).ToList();
 
     #region List Functions
