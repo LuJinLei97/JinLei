@@ -109,16 +109,16 @@ public static partial class IEnumerableExtensions
 
 public static partial class ICollectionExtensions
 {
-    public static void Change<TSource>(this ICollection<TSource> items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue)
+    public static void Change<TSource>(this ICollection<TSource> items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int maxCount = int.MaxValue)
     {
         if(items.IsNull() == false)
         {
             if(action == NotifyCollectionChangedAction.Add)
             {
-                values?.ForEach((v, i) => items.Add(v), whilePredicate: (v, i) => i < count);
+                values?.ForEach((v, i) => items.Add(v), whilePredicate: (v, i) => i < maxCount);
             } else if(action == NotifyCollectionChangedAction.Remove)
             {
-                values?.ForEach((v, i) => items.Remove(v), whilePredicate: (v, i) => i < count);
+                values?.ForEach((v, i) => items.Remove(v), whilePredicate: (v, i) => i < maxCount);
             } else if(action == NotifyCollectionChangedAction.Reset)
             {
                 items.Clear();
@@ -129,16 +129,16 @@ public static partial class ICollectionExtensions
     #region List Functions
     public static int RemoveAll<TSource>(this ICollection<TSource> items, Predicate<TSource> match)
     {
-        var count1 = items.Count;
-        items.Change(items.Where(t => match(t)), NotifyCollectionChangedAction.Remove);
-        return items.Count - count1;
+        var count1 = items?.Count;
+        items?.Change(items?.Where(t => match(t)), NotifyCollectionChangedAction.Remove);
+        return (items?.Count - count1).GetValueOrDefault();
     }
     #endregion
 }
 
 public static partial class IListExtensions
 {
-    public static void Change<TSource>(this IList<TSource> items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue, int? startIndex = default)
+    public static void Change<TSource>(this IList<TSource> items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int maxCount = int.MaxValue, int? startIndex = default)
     {
         if(items.IsNull() == false)
         {
@@ -147,26 +147,26 @@ public static partial class IListExtensions
             {
                 if(items.CheckRange(index))
                 {
-                    values?.ForEach((v, i) => items.Insert(index++, v), whilePredicate: (v, i) => i < count);
+                    values?.ForEach((v, i) => items.Insert(index++, v), whilePredicate: (v, i) => i < maxCount);
                 } else
                 {
-                    values?.ForEach((v, i) => items.Set(index++, v), whilePredicate: (v, i) => i < count);
+                    values?.ForEach((v, i) => items.Set(index++, v), whilePredicate: (v, i) => i < maxCount);
                 }
             } else if(action == NotifyCollectionChangedAction.Remove)
             {
                 if(items.CheckRange(index))
                 {
-                    Enumerable.Range(index, count).ForEach(items.RemoveAt, whilePredicate: items.CheckRange);
+                    Enumerable.Range(1, maxCount).ForEach((v, i) => items.RemoveAt(index), whilePredicate: (v, i) => items.CheckRange(index));
                 } else
                 {
-                    ICollectionExtensions.Change(items, values, action, count);
+                    ICollectionExtensions.Change(items, values, action, maxCount);
                 }
             } else if(action == NotifyCollectionChangedAction.Replace)
             {
-                values?.ForEach((v, i) => items.Set(index++, v), whilePredicate: (v, i) => i < count && items.CheckRange(index));
+                values?.ForEach((v, i) => items.Set(index++, v), whilePredicate: (v, i) => i < maxCount && items.CheckRange(index));
             } else
             {
-                ICollectionExtensions.Change(items, values, action, count);
+                ICollectionExtensions.Change(items, values, action, maxCount);
             }
         }
     }
