@@ -60,6 +60,7 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
     }
     protected ObservableCollection<TNode> childs;
 
+    [JsonIgnore]
     public virtual TNode Root
     {
         get => root ??= (Parent?.Root ?? this.AsOrDefault<TNode>());
@@ -88,6 +89,7 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
 
 public class ValueTreeNode<TValue> : TreeNode<ValueTreeNode<TValue>>
 {
+    [JsonIgnore]
     public virtual ObservableCollection<TValue> Values { get; set; }
 
     public virtual IEnumerable<TValue> GetAllValues() => (Childs?.SelectMany(t => t.GetAllValues())).GetSelfOrEmpty().Concat(Values.GetSelfOrEmpty());
