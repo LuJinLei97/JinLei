@@ -32,11 +32,13 @@ public static partial class IEnumerableExtensions
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
     /// </summary>
-    public static IEnumerable<TResult> ForEachDoDelegate<TSource, TResult>(this IEnumerable<TSource> items, Delegate @delegate, Delegate wherePredicate = default, Delegate whilePredicate = default)
+    public static LinkedList<TResult> ForEachDoDelegate<TSource, TResult>(this IEnumerable<TSource> items, Delegate @delegate, Delegate wherePredicate = default, Delegate whilePredicate = default)
     {
+        var result = new LinkedList<TResult>();
+
         if(@delegate.IsNull())
         {
-            yield break;
+            goto Result;
         }
 
         var itemFuncResult = @delegate switch
@@ -72,14 +74,17 @@ public static partial class IEnumerableExtensions
         {
             if(whilePredicateResult(item.Value, item.Key) == false)
             {
-                yield break;
+                goto Result;
             }
 
             if(wherePredicateResult(item.Value, item.Key))
             {
-                yield return itemFuncResult(item.Value, item.Key);
+                result.AddLast(itemFuncResult(item.Value, item.Key));
             }
         }
+
+    Result:
+        return result;
     }
 
     public static IEnumerable<object> ForEachDoDelegate<TSource>(this IEnumerable<TSource> items, Delegate @delegate, Delegate wherePredicate = default, Delegate whilePredicate = default) => items.ForEachDoDelegate<TSource, object>(@delegate, wherePredicate, whilePredicate);

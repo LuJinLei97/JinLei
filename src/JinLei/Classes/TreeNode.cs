@@ -22,10 +22,7 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
 
             if(this is TNode node)
             {
-                if(parent?.Childs?.Contains(node) == true)
-                {
-                    parent?.Childs?.Remove(node);
-                }
+                parent?.Childs?.Remove(node);
 
                 if((parent = value)?.Childs?.Contains(node) == false)
                 {
@@ -47,22 +44,13 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
                 return;
             }
 
-            if(childs.IsNull() == false)
-            {
-                foreach(var child in childs)
-                {
-                    child.Parent = null;
-                }
-            }
+            childs?.ForEach(t => t.Parent = null);
 
             if((childs = value).IsNull() == false)
             {
                 if(this is TNode node)
                 {
-                    foreach(var child in childs)
-                    {
-                        child.Parent = node;
-                    }
+                    childs?.ForEach(t => t.Parent = node);
                 }
 
                 childs.CollectionChanged -= Childs_CollectionChanged;
@@ -71,6 +59,13 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
         }
     }
     protected ObservableCollection<TNode> childs;
+
+    public virtual TNode Root
+    {
+        get => root ??= (Parent?.Root ?? this.AsOrDefault<TNode>());
+        protected set => root = value;
+    }
+    protected TNode root;
 
     protected virtual void Childs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
@@ -87,12 +82,13 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
             }
         }
 
-        void SetChildsParent(IList childs, TNode parent)
-        {
-            foreach(var child in childs.OfType<TNode>())
-            {
-                child.Parent = parent;
-            }
-        }
+        void SetChildsParent(IList childs, TNode parent) => childs.OfType<TNode>().ForEach(t => t.Parent = parent);
     }
+}
+
+public class ValueTreeNode<TValue> : TreeNode<ValueTreeNode<TValue>>
+{
+    public virtual ObservableCollection<TValue> Values { get; set; }
+
+    public virtual IEnumerable<TValue> GetAllValues() => (Childs?.SelectMany(t => t.GetAllValues())).GetSelfOrEmpty().Concat(Values.GetSelfOrEmpty());
 }
