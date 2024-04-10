@@ -191,6 +191,23 @@ public static partial class IListExtensions
 
         sources[index] = value;
     }
+
+    public static bool TryGetNode<T>(this LinkedList<T> linkedList, int index, out LinkedListNode<T> node)
+    {
+        node = default;
+
+        if(linkedList.CheckRange(index))
+        {
+            for((node, var i) = ((index < linkedList.Count / 2).Out(out var isFormFirst) ? linkedList.First : linkedList.Last, 0); isFormFirst ? i < index : i < linkedList.Count - index - 1; i++)
+            {
+                node = isFormFirst ? node.Next : node.Previous;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
 }
 
 public static partial class IDictionaryExtensions

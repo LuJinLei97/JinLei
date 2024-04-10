@@ -60,14 +60,6 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
     }
     protected ObservableCollection<TNode> childs;
 
-    [JsonIgnore]
-    public virtual TNode Root
-    {
-        get => root ??= (Parent?.Root ?? this.AsOrDefault<TNode>());
-        protected set => root = value;
-    }
-    protected TNode root;
-
     protected virtual void Childs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         if(e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace or NotifyCollectionChangedAction.Reset)
@@ -87,10 +79,17 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
     }
 }
 
-public class ValueTreeNode<TValue> : TreeNode<ValueTreeNode<TValue>>
+public static class TreeNodeExtensions
+{
+    public static TNode GetRoot<TNode>(this TreeNode<TNode> treeNode) where TNode : TreeNode<TNode> => treeNode?.Parent?.GetRoot() ?? treeNode.AsOrDefault<TNode>();
+}
+
+public class TValueTreeNode<TValue, TCollection> : TreeNode<TValueTreeNode<TValue, TCollection>> where TCollection : ICollection<TValue>, new()
 {
     [JsonIgnore]
-    public virtual ObservableCollection<TValue> Values { get; set; }
+    public virtual TCollection Values { get; set; }
+}
 
-    public virtual IEnumerable<TValue> GetAllValues() => (Childs?.SelectMany(t => t.GetAllValues())).GetSelfOrEmpty().Concat(Values.GetSelfOrEmpty());
+public class ValueTreeNode<TValue> : TValueTreeNode<TValue, ObservableCollection<TValue>>
+{
 }
