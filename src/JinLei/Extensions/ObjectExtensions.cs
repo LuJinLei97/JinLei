@@ -29,19 +29,9 @@ public static partial class ObjectExtensions
     public static TSource DoActions<TSource>(this TSource source, params Action[] @delegates) => @delegates.ForEach(d => source.Do(d)).Return(source);
     #endregion
 
-    public static bool Is<TResult>(this object source, out TResult result)
-    {
-        if(source is TResult value)
-        {
-            result = value;
-            return true;
-        }
+    public static bool Is<TResult>(this object source, out TResult result) => (source is TResult value ? (true, value) : (false, default)).Do(t => t.value, out result).Item1;
 
-        result = default;
-        return false;
-    }
-
-    public static bool IsNull<TSource>(this TSource source) => source == null;
+    public static bool IsNull<TSource>(this TSource source) => source is null;
 
     public static TResult AsOrDefault<TResult>(this object source, TResult defaultValue = default) => source.Is<TResult>(out var result) ? result : defaultValue;
 
