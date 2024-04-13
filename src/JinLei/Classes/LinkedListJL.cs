@@ -3,7 +3,7 @@
 using JinLei.Extensions;
 
 namespace JinLei.Classes;
-public class LinkedListJL<T> : TreeNode<LinkedListJL<T>>, IList<T>
+internal class LinkedListJL<T> : TreeNode<LinkedListJL<T>>, IList<T>
 {
     public virtual LinkedList<T> Values { get; set; } = new();
 
@@ -13,6 +13,10 @@ public class LinkedListJL<T> : TreeNode<LinkedListJL<T>>, IList<T>
         set => bucketCapacity = Math.Max(1, value);
     }
     protected int bucketCapacity = 64;
+
+    public virtual IEnumerable<LinkedList<T>> EnumerateLinkedLists() => Childs.GetSelfOrEmpty().SelectMany(t => (t?.EnumerateLinkedLists()).GetSelfOrEmpty()).Append(Values);
+
+    public virtual IEnumerable<LinkedListNode<T>> EnumerateLinkedListNodes() => EnumerateLinkedLists().SelectMany(t => (t?.EnumerateLinkedListNodes()).GetSelfOrEmpty());
 
     public virtual bool TryGetLinkedListNode(int index, out LinkedListNode<T> linkedListNode, out LinkedListJL<T> treeNode)
     {
@@ -38,8 +42,21 @@ public class LinkedListJL<T> : TreeNode<LinkedListJL<T>>, IList<T>
         return false;
     }
 
-    public virtual bool TryInsertChild(int index, LinkedListJL<T> treeNode)
+    public virtual bool TryInsert(int index, LinkedListJL<T> treeNode)
     {
+        var isInsert = TryGetLinkedListNode(index, out var node, out var treeNode1);
+
+        if(isInsert == false)
+        {
+            if(index == Count)
+            {
+                treeNode1 = this;
+            } else
+            {
+                return false;
+            }
+        }
+
         if((Childs ??= []).CheckRange(index))
         {
             if(Childs.Count < BucketCapacity)
@@ -47,7 +64,7 @@ public class LinkedListJL<T> : TreeNode<LinkedListJL<T>>, IList<T>
                 Childs.Insert(index, treeNode);
             } else
             {
-                return Childs[index].TryInsertChild(0, treeNode);
+                return Childs[index].TryInsert(0, treeNode);
             }
         } else if(index == Childs.Count)
         {
@@ -56,7 +73,7 @@ public class LinkedListJL<T> : TreeNode<LinkedListJL<T>>, IList<T>
                 Childs.Add(treeNode);
             } else
             {
-                return Childs.Last().TryInsertChild(Childs.Last()?.Childs?.Count ?? 0, treeNode);
+                return Childs.Last().TryInsert(Childs.Last()?.Childs?.Count ?? 0, treeNode);
             }
         } else
         {
@@ -66,8 +83,13 @@ public class LinkedListJL<T> : TreeNode<LinkedListJL<T>>, IList<T>
         return true;
     }
 
-    public virtual bool TryInsert(int index, T item)
+    public virtual bool TryInsert(int index, params T[] items)
     {
+        if(items.IsNullOrEmpty())
+        {
+            return true;
+        }
+
         var isInsert = TryGetLinkedListNode(index, out var node, out var treeNode);
 
         if(isInsert == false)
@@ -81,40 +103,21 @@ public class LinkedListJL<T> : TreeNode<LinkedListJL<T>>, IList<T>
             }
         }
 
-        if(treeNode.Values.Count < BucketCapacity)
+        while(true)
         {
-            if(isInsert)
+            var count1 = items.ForEach(t => node = isInsert ? treeNode.Values.AddBefore(node, t).Next : treeNode.Values.AddLast(t), whilePredicate: t => treeNode.Values.Count < BucketCapacity).Count;
+            if((items = items.Skip(count1).ToArray()).Length != 0)
             {
-                treeNode.Values.AddBefore(node, item);
+                var treeNode1 = new LinkedListJL<T>()
+                {
+                    BucketCapacity = treeNode.BucketCapacity,
+                    Values = treeNode.Values
+                };
+
             } else
             {
-                treeNode.Values.AddLast(item);
+                break;
             }
-        } else
-        {
-            if(isInsert)
-            {
-                treeNode.Values.AddBefore(node, item);
-            } else
-            {
-                treeNode.Values.AddLast(item);
-            }
-
-            var treeNode1 = new LinkedListJL<T>()
-            {
-                BucketCapacity = BucketCapacity,
-                Values = new LinkedList<T>().AddLast(treeNode.Values.First.Value).List
-            };
-
-            if((treeNode.Childs ??= []).Count < BucketCapacity)
-            {
-                treeNode.TryInsertChild(treeNode.Childs.CountOrZero(), treeNode1);
-            } else
-            {
-                treeNode.Childs.Last().TryInsertChild(treeNode.Childs.Last().Childs.CountOrZero(), treeNode1);
-            }
-
-            treeNode.Values.RemoveFirst();
         }
 
         return true;
@@ -127,7 +130,7 @@ public class LinkedListJL<T> : TreeNode<LinkedListJL<T>>, IList<T>
         set => TryGetLinkedListNode(index, out var node, out var treeNode).Do(t => node.Value = value);
     }
 
-    public virtual int Count => Childs.GetSelfOrEmpty().Select(t => t.Count).Append(Values.Count).Sum();
+    public virtual int Count => EnumerateLinkedLists().Sum(t => t.CountOrZero());
 
     public virtual bool IsReadOnly => false;
 
@@ -141,52 +144,15 @@ public class LinkedListJL<T> : TreeNode<LinkedListJL<T>>, IList<T>
 
     public virtual bool Contains(T item) => Enumerable.Contains(this, item);
 
-    public virtual void CopyTo(T[] array, int arrayIndex)
-    {
-        foreach(var item in this)
-        {
-            if(arrayIndex < 0 || arrayIndex >= array.Length)
-            {
-                break;
-            }
+    public virtual void CopyTo(T[] array, int arrayIndex) => IEnumerableExtensions.CopyTo(this, array, arrayIndex);
 
-            array[arrayIndex++] = item;
-        }
-    }
+    public virtual IEnumerator<T> GetEnumerator() => EnumerateLinkedListNodes().Select(t => t.Value).GetEnumerator();
 
-    public virtual IEnumerator<T> GetEnumerator()
-    {
-        foreach(var item in Childs.GetSelfOrEmpty().SelectMany(t => t).Concat(Values))
-        {
-            yield return item;
-        }
-    }
-
-    public virtual int IndexOf(T item)
-    {
-        foreach(var iv in this.SelectIndexValue())
-        {
-            if(iv.Value.Equals(item))
-            {
-                return iv.Key;
-            }
-        }
-
-        return -1;
-    }
+    public virtual int IndexOf(T item) => IEnumerableExtensions.IndexOf(this, item);
 
     public virtual void Insert(int index, T item) => TryInsert(index, item);
 
-    public virtual bool Remove(T item)
-    {
-        if(this.CheckRange(IndexOf(item).Out(out var index)))
-        {
-            RemoveAt(index);
-            return true;
-        }
-
-        return false;
-    }
+    public virtual bool Remove(T item) => EnumerateLinkedListNodes().FirstOrDefault(t => t.Value.Equals(item)).Out(out var node).Do(t => node.List.Remove(node), t => node.IsNull() == false).Return(node.IsNull() == false);
 
     public virtual void RemoveAt(int index)
     {

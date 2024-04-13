@@ -4,29 +4,49 @@ using System.Collections.Specialized;
 namespace JinLei.Extensions;
 public static partial class IEnumerableExtensions
 {
-    public static IEnumerable<TSource> GetSelfOrEmpty<TSource>(this IEnumerable<TSource> items) => items.GetValueOrDefault(Enumerable.Empty<TSource>());
+    public static IEnumerable GetSelfOrEmpty(this IEnumerable items) => items.GetValueOrDefault(default(IEnumerable<object>).GetSelfOrEmpty());
+
+    public static IEnumerable<TSource> GetSelfOrEmpty<TSource>(this IEnumerable<TSource> items) => items.GetValueOrDefault([]);
 
     public static TEnumerable GetSelfOrEmpty<TEnumerable>(this TEnumerable items) where TEnumerable : IEnumerable, new() => items.GetValueOrDefault([]);
 
-    public static bool IsNullOrEmpty<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Any() == false;
+    public static bool IsNullOrEmpty(this IEnumerable items) => items.GetSelfOrEmpty().GetEnumerator().MoveNext() == false;
 
-    public static IEnumerable<KeyValuePair<int, T>> SelectIndexValue<T>(this IEnumerable<T> items) => items.GetSelfOrEmpty().Select((t, i) => new KeyValuePair<int, T>(i, t));
+    public static IEnumerable<KeyValuePair<int, object>> SelectIndexValue(this IEnumerable items) => items.GetSelfOrEmpty().OfType<object>().SelectIndexValue();
+
+    public static IEnumerable<KeyValuePair<int, TSource>> SelectIndexValue<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Select((t, i) => new KeyValuePair<int, TSource>(i, t));
+
+    public static int CountOrZero(this IEnumerable items) => items.GetSelfOrEmpty().Out(out var items2).Is<ICollection>(out var collection) ? collection.Count : items2.OfType<object>().CountOrZero();
 
     public static int CountOrZero<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Count();
 
-    public static bool CheckRange<TSource>(this IEnumerable<TSource> items, int index) => 0 <= index && index <= items.CountOrZero() - 1;
+    public static bool CheckRange(this IEnumerable items, int index) => index >= 0 && index < items.CountOrZero() - 1;
 
     public static TCollection ToTCollection<TCollection, TSource>(this IEnumerable<TSource> items) where TCollection : ICollection<TSource>, new() => new TCollection().Do(t => t.Change(items.GetSelfOrEmpty()));
 
-    public static List<TSource> ToListOrEmpty<TSource>(this IEnumerable<TSource> items) => new LinkedList<TSource>(items.GetSelfOrEmpty()).ToList();
+    public static List<object> ToListOrEmpty(this IEnumerable items) => items.GetSelfOrEmpty().Out(out var items2).Is<ICollection>(out var collection) ? new List<object>(collection.Count).Do(t => t.AddRange(collection.OfType<object>())) : items2.ToListOrEmpty();
+
+    public static List<TSource> ToListOrEmpty<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Out(out var items2).Is<ICollection<TSource>>(out var collection) ? new List<TSource>(collection) : new LinkedList<TSource>(items2).ToList();
+
+    #region ICollection Functions
+    public static void CopyTo(this IEnumerable items, object[] array, int arrayIndex) => items.GetSelfOrEmpty().OfType<object>().CopyTo(array, arrayIndex);
+
+    public static void CopyTo<TSource>(this IEnumerable<TSource> items, TSource[] array, int arrayIndex) => items.ForEach(t => array[arrayIndex++] = t, whilePredicate: t => arrayIndex >= 0 && arrayIndex < array.Length - 1);
+    #endregion
+
+    #region IList Functions
+    public static int IndexOf(this IEnumerable items, object item) => items.GetSelfOrEmpty().OfType<object>().IndexOf(item);
+
+    public static int IndexOf<TSource>(this IEnumerable<TSource> items, TSource item) => items.SelectIndexValue().Where(t => t.Value.Equals(item)).Out(out var results).Any() ? results.First().Key : -1;
+    #endregion
 
     #region List Functions
-    public static List<T> GetRange<T>(this IEnumerable<T> values, int index, int count) => values.GetSelfOrEmpty().Skip(index).Take(count).ToListOrEmpty();
+    public static List<TSource> GetRange<TSource>(this IEnumerable<TSource> items, int index, int count) => items.GetSelfOrEmpty().Skip(index).Take(count).ToListOrEmpty();
 
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
     /// </summary>
-    public static IEnumerable<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, TResult> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default) => items.ForEachDoDelegate<TSource, TResult>(@delegate, whilePredicate);
+    public static LinkedList<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, TResult> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default) => items.ForEachDoDelegate<TSource, TResult>(@delegate, whilePredicate);
 
     #region ForEach
     /// <summary>
@@ -87,12 +107,12 @@ public static partial class IEnumerableExtensions
         return result;
     }
 
-    public static IEnumerable<object> ForEachDoDelegate<TSource>(this IEnumerable<TSource> items, Delegate @delegate, Delegate wherePredicate = default, Delegate whilePredicate = default) => items.ForEachDoDelegate<TSource, object>(@delegate, wherePredicate, whilePredicate);
+    public static LinkedList<object> ForEachDoDelegate<TSource>(this IEnumerable<TSource> items, Delegate @delegate, Delegate wherePredicate = default, Delegate whilePredicate = default) => items.ForEachDoDelegate<TSource, object>(@delegate, wherePredicate, whilePredicate);
 
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
     /// </summary>
-    public static IEnumerable<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, TResult> @delegate, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default) => ForEachDoDelegate<TSource, TResult>(items, @delegate, whilePredicate);
+    public static LinkedList<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, TResult> @delegate, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default) => ForEachDoDelegate<TSource, TResult>(items, @delegate, whilePredicate);
 
     /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
@@ -124,6 +144,34 @@ public static partial class ICollectionExtensions
                 items.Clear();
             }
         }
+    }
+
+    public static IEnumerable<LinkedListNode<T>> EnumerateLinkedListNodes<T>(this LinkedList<T> linkedList, bool isReverse = false)
+    {
+        if(linkedList.IsNullOrEmpty())
+        {
+            yield break;
+        }
+
+        for((var i, var node) = isReverse ? (linkedList.Count - 1, linkedList.Last) : (0, linkedList.First); linkedList.CheckRange(i); (i, node) = isReverse ? (i - 1, node.Previous) : (i + 1, node.Next))
+        {
+            yield return node;
+        }
+    }
+
+    public static bool TryGetNode<T>(this LinkedList<T> linkedList, int index, out LinkedListNode<T> node)
+    {
+        node = default;
+
+        if(linkedList.CheckRange(index))
+        {
+            var isFormFirst = index < linkedList.Count / 2;
+            node = linkedList.EnumerateLinkedListNodes(!isFormFirst).SelectIndexValue().First(t => t.Key == (isFormFirst ? index : linkedList.Count - 1 - index)).Value;
+
+            return true;
+        }
+
+        return false;
     }
 
     #region List Functions
@@ -190,23 +238,6 @@ public static partial class IListExtensions
         }
 
         sources[index] = value;
-    }
-
-    public static bool TryGetNode<T>(this LinkedList<T> linkedList, int index, out LinkedListNode<T> node)
-    {
-        node = default;
-
-        if(linkedList.CheckRange(index))
-        {
-            for((node, var i) = ((index < linkedList.Count / 2).Out(out var isFormFirst) ? linkedList.First : linkedList.Last, 0); isFormFirst ? i < index : i < linkedList.Count - index - 1; i++)
-            {
-                node = isFormFirst ? node.Next : node.Previous;
-            }
-
-            return true;
-        }
-
-        return false;
     }
 }
 
