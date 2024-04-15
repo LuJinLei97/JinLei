@@ -10,13 +10,13 @@ public static partial class IEnumerableExtensions
 
     public static TEnumerable GetSelfOrEmpty<TEnumerable>(this TEnumerable items) where TEnumerable : IEnumerable, new() => items.GetValueOrDefault([]);
 
-    public static bool IsNullOrEmpty(this IEnumerable items) => items.GetSelfOrEmpty().GetEnumerator().MoveNext() == false;
+    public static IEnumerable<object> ToObjects(this IEnumerable items) => items.GetSelfOrEmpty().Cast<object>();
 
-    public static IEnumerable<KeyValuePair<int, object>> SelectIndexValue(this IEnumerable items) => items.GetSelfOrEmpty().OfType<object>().SelectIndexValue();
+    public static bool IsNullOrEmpty(this IEnumerable items) => items.ToObjects().Any() == false;
 
     public static IEnumerable<KeyValuePair<int, TSource>> SelectIndexValue<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Select((t, i) => new KeyValuePair<int, TSource>(i, t));
 
-    public static int CountOrZero(this IEnumerable items) => items.GetSelfOrEmpty().Out(out var items2).Is<ICollection>(out var collection) ? collection.Count : items2.OfType<object>().CountOrZero();
+    public static int CountOrZero(this IEnumerable items) => items.GetSelfOrEmpty().Out(out var items2).Is<ICollection>(out var collection) ? collection.Count : items2.ToObjects().CountOrZero();
 
     public static int CountOrZero<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Count();
 
@@ -24,19 +24,15 @@ public static partial class IEnumerableExtensions
 
     public static TCollection ToTCollection<TCollection, TSource>(this IEnumerable<TSource> items) where TCollection : ICollection<TSource>, new() => new TCollection().Do(t => t.Change(items.GetSelfOrEmpty()));
 
-    public static List<object> ToListOrEmpty(this IEnumerable items) => items.GetSelfOrEmpty().Out(out var items2).Is<ICollection>(out var collection) ? new List<object>(collection.Count).Do(t => t.AddRange(collection.OfType<object>())) : items2.ToListOrEmpty();
+    public static List<object> ToListOrEmpty(this IEnumerable items) => items.GetSelfOrEmpty().Out(out var items2).Is<ICollection>(out var collection) ? new List<object>(collection.Count).Do(t => t.AddRange(collection.ToObjects())) : items2.ToListOrEmpty();
 
-    public static List<TSource> ToListOrEmpty<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Out(out var items2).Is<ICollection<TSource>>(out var collection) ? new List<TSource>(collection) : new LinkedList<TSource>(items2).ToList();
+    public static List<TSource> ToListOrEmpty<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Out(out var items2).Is<ICollection<TSource>>(out var collection) ? new List<TSource>(collection.Count).Do(t => t.AddRange(collection)) : new LinkedList<TSource>(items2).ToList();
 
     #region ICollection Functions
-    public static void CopyTo(this IEnumerable items, object[] array, int arrayIndex) => items.GetSelfOrEmpty().OfType<object>().CopyTo(array, arrayIndex);
-
     public static void CopyTo<TSource>(this IEnumerable<TSource> items, TSource[] array, int arrayIndex) => items.ForEach(t => array[arrayIndex++] = t, whilePredicate: t => arrayIndex >= 0 && arrayIndex < array.Length - 1);
     #endregion
 
     #region IList Functions
-    public static int IndexOf(this IEnumerable items, object item) => items.GetSelfOrEmpty().OfType<object>().IndexOf(item);
-
     public static int IndexOf<TSource>(this IEnumerable<TSource> items, TSource item) => items.SelectIndexValue().Where(t => t.Value.Equals(item)).Out(out var results).Any() ? results.First().Key : -1;
     #endregion
 
