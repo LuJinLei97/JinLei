@@ -65,7 +65,7 @@ public static partial class FielSystemInfoExtensions
 {
     public static long GetLength(this FileSystemInfo fileSystemInfo) => (fileSystemInfo switch
     {
-        FileInfo fileInfo => new[] { fileInfo },
+        FileInfo fileInfo => [fileInfo],
         DirectoryInfo directoryInfo => directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories),
         _ => throw new NotImplementedException()
     }).Sum(f => f.Length);

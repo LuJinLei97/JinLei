@@ -4,7 +4,7 @@
     <TargetFrameworks>net4.8;net8.0-windows</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.13.0</Version>
+    <Version>2.14.0</Version>
     <UseWPF>True</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -12,25 +12,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json"
-                      Version="13.0.3" />
-    <PackageReference Include="PowerShellStandard.Library"
-                      Version="5.1.1" />
-    <PackageReference Include="System.IO.Compression"
-                      Version="4.3.0" />
-    <PackageReference Include="System.Management"
-                      Version="8.0.0" />
-    <PackageReference Include="System.Runtime.Caching"
-                      Version="8.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net4.8'">
-    <PackageReference Include="Microsoft.Activities.Extensions"
-                      Version="2.0.6.9" />
-    <Reference Include="System.Activities" />
+    <PackageReference Include="Microsoft.Activities.Extensions" Version="2.0.6.9" />
     <Reference Include="System.Activities.Core.Presentation" />
     <Reference Include="System.ServiceModel.Activities" />
-    <Reference Include="System.Workflow.Runtime" />
   </ItemGroup>
 
   <ItemGroup>

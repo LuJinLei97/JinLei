@@ -103,9 +103,5 @@ public static class ActivityFactory
 
     public static TransactedReceiveScope TransactedReceiveScope() => new();
     #endregion
-
-    #region 迁移
-    public static Interop Interop() => new();
-    #endregion
 }
 #endif

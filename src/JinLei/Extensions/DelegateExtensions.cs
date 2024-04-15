@@ -37,7 +37,7 @@ public static partial class DelegateExtensions
                 }
             }
 
-            var lambdaExpression = Expression.Lambda<TDelegate>(Expression.Block(blockVariables.ToArray(), [.. blockExpressions]), targetParameterExpressions);
+            var lambdaExpression = Expression.Lambda<TDelegate>(Expression.Block([.. blockVariables], [.. blockExpressions]), targetParameterExpressions);
 
             return lambdaExpression.Compile();
         } catch { }
