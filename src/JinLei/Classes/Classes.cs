@@ -1,7 +1,7 @@
 ﻿using JinLei.Extensions;
 
 namespace JinLei.Classes;
-public class InvokeResult : Dictionary<string, object>
+public class InvokeResult
 {
     public InvokeResult(object value = default, bool success = true, Exception exception = default)
     {
@@ -10,11 +10,13 @@ public class InvokeResult : Dictionary<string, object>
         Exception = exception;
     }
 
-    public object Value { get => this[nameof(Value)]; set => this[nameof(Value)] = value; }
+    public virtual object Value { get => Properties[nameof(Value)]; set => Properties[nameof(Value)] = value; }
 
-    public bool Success { get => this[nameof(Success)].AsOrDefault<bool>(true); set => this[nameof(Success)] = value; }
+    public virtual bool Success { get => Properties[nameof(Success)].AsOrDefault<bool>(true); set => Properties[nameof(Success)] = value; }
 
-    public Exception Exception { get => this[nameof(Exception)].AsOrDefault<Exception>(); set => this[nameof(Exception)] = value; }
+    public virtual Exception Exception { get => Properties[nameof(Exception)].AsOrDefault<Exception>(); set => Properties[nameof(Exception)] = value; }
+
+    public virtual Dictionary<string, object> Properties { get; protected set; } = [];
 }
 
 public class InvokeResult<TValue> : InvokeResult
@@ -23,5 +25,5 @@ public class InvokeResult<TValue> : InvokeResult
     {
     }
 
-    public new TValue Value { get => base.Value.AsOrDefault<TValue>(); set => base.Value = value; }
+    public new virtual TValue Value { get => base.Value.AsOrDefault<TValue>(); set => base.Value = value; }
 }

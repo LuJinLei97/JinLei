@@ -26,7 +26,7 @@ public static partial class ProcessUtility
 
         return new InvokeResult<string>(process.StandardOutput.Do(Trim), string.IsNullOrWhiteSpace(process.StandardError.Do(Trim).Out(out var error)), new(error));
 
-        static string Trim(StreamReader s) => s.ReadToEnd().Trim(Environment.NewLine);
+        string Trim(StreamReader s) => s.ReadToEnd().Trim(Environment.NewLine);
     }
 
     public static InvokeResult<string> InvokeCMD(string command) => InvokeEXE("cmd", $"/c {command}");

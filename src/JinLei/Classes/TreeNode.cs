@@ -10,6 +10,22 @@ namespace JinLei.Classes;
 public class TreeNode<TNode> where TNode : TreeNode<TNode>
 {
     [JsonIgnore]
+    public virtual TNode Root
+    {
+        get => root ?? this?.Parent?.Root ?? this.AsOrDefault<TNode>();
+        set
+        {
+            if(root == value)
+            {
+                return;
+            }
+
+            root = value;
+        }
+    }
+    protected TNode root;
+
+    [JsonIgnore]
     public virtual TNode Parent
     {
         get => parent;
@@ -79,17 +95,8 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
     }
 }
 
-public static class TreeNodeExtensions
-{
-    public static TNode GetRoot<TNode>(this TreeNode<TNode> treeNode) where TNode : TreeNode<TNode> => treeNode?.Parent?.GetRoot() ?? treeNode.AsOrDefault<TNode>();
-}
-
 public class TValueTreeNode<TValue, TCollection> : TreeNode<TValueTreeNode<TValue, TCollection>> where TCollection : ICollection<TValue>, new()
 {
     [JsonIgnore]
     public virtual TCollection Values { get; set; }
-}
-
-public class ValueTreeNode<TValue> : TValueTreeNode<TValue, ObservableCollection<TValue>>
-{
 }

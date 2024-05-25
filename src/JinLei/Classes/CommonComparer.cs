@@ -6,14 +6,14 @@ public class CommonComparer<T> : IComparer<T>, IEqualityComparer<T>
 {
     public virtual int Compare(T x, T y) => Comparison(x, y);
 
-    public virtual bool Equals(T x, T y) => EqualityComparison.IsNull() ? Comparison(x, y) == 0 : EqualityComparison(x, y);
+    public virtual bool Equals(T x, T y) => equalityComparison.IsNull() == false ? EqualityComparison(x, y) : x is IEquatable<T> equatableX ? equatableX.Equals(y) : Comparison(x, y) == 0;
 
     public virtual int GetHashCode(T x) => GetHashCodeFunc(x);
 
     /// <inheritdoc cref="Compare(T, T)"/>
     public virtual Comparison<T> Comparison
     {
-        get => comparison ??= Comparer<T>.Default.Compare;
+        get => comparison ?? Comparer<T>.Default.Compare;
         set => comparison = value;
     }
     protected Comparison<T> comparison;
@@ -21,7 +21,7 @@ public class CommonComparer<T> : IComparer<T>, IEqualityComparer<T>
     /// <inheritdoc cref="Equals(T, T)"/>
     public virtual Func<T, T, bool> EqualityComparison
     {
-        get => equalityComparison ??= EqualityComparer<T>.Default.Equals;
+        get => equalityComparison ?? EqualityComparer<T>.Default.Equals;
         set => equalityComparison = value;
     }
     protected Func<T, T, bool> equalityComparison;
@@ -29,7 +29,7 @@ public class CommonComparer<T> : IComparer<T>, IEqualityComparer<T>
     /// <inheritdoc cref="GetHashCode(T)"/>
     public virtual Converter<T, int> GetHashCodeFunc
     {
-        get => getHashCodeFunc ??= EqualityComparer<T>.Default.GetHashCode;
+        get => getHashCodeFunc ?? EqualityComparer<T>.Default.GetHashCode;
         set => getHashCodeFunc = value;
     }
     protected Converter<T, int> getHashCodeFunc;

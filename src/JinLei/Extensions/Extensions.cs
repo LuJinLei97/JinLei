@@ -30,17 +30,19 @@ public static class DateTimeExtensions
     /// <inheritdoc cref="DateTimeOffset.Subtract(DateTimeOffset)"/>
     public static TimeSpan Subtract(this DateTimeOffset timeOffset, IEnumerable<DateTimeOffset> timeOffsetsToSubtract)
     {
-        var result = -timeOffset.Offset;
+        var result = timeOffset.Offset;
         timeOffsetsToSubtract?.ForEach(t =>
         {
-            result += t.DateTime.GetValueInRange(timeOffset.DateTime, timeOffset.UtcDateTime).GetDateTimeOffset(t.UtcDateTime.GetValueInRange(timeOffset.DateTime, timeOffset.UtcDateTime)).Offset;
+            var t1 = t.UtcDateTime.GetValueInRange(timeOffset.UtcDateTime, timeOffset.DateTime);
+            var t2 = t.DateTime.GetValueInRange(timeOffset.UtcDateTime, timeOffset.DateTime);
+            result -= t1.GetDateTimeOffset(t2).Offset;
         });
 
         return result;
     }
 
     /// <inheritdoc cref="DateTimeOffset.DateTimeOffset(DateTime, TimeSpan)"/>
-    public static DateTimeOffset GetDateTimeOffset(this DateTime dateTime, DateTime value) => new(dateTime, dateTime - value);
+    public static DateTimeOffset GetDateTimeOffset(this DateTime utcDateTime, DateTime dateTime) => new(utcDateTime, dateTime - utcDateTime);
 }
 
 public static partial class EnumExtensions
