@@ -4,7 +4,7 @@
     <TargetFrameworks>net4.8;net8.0-windows</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.15.0</Version>
+    <Version>2.17.0</Version>
     <UseWPF>True</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <None Update="Extensions\DelegateExtensions0.tt">
+      <DependentUpon>DelegateExtensions.cs</DependentUpon>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DelegateExtensions0.cs</LastGenOutput>
     </None>
@@ -37,6 +38,36 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>DelegateExtensions0.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\ICollectionExtensions.cs">
+      <DependentUpon>IEnumerableExtensions.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\IDictionaryExtensions.cs">
+      <DependentUpon>IEnumerableExtensions.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\IListExtensions.cs">
+      <DependentUpon>IEnumerableExtensions.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\ForEachExtensions.cs">
+      <DependentUpon>IEnumerableExtensions.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\MethodChainExtensions.cs">
+      <DependentUpon>ObjectExtensions.cs</DependentUpon>
     </Compile>
   </ItemGroup>
 

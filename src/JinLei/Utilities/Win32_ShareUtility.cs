@@ -46,7 +46,7 @@ public static partial class Win32_ShareUtility
 
             DeleteShare(shareName);
 
-            return (int)new ManagementClass("Win32_Share").InvokeMethod("Create", new[] { Path.Combine(directory.GetParent().FullName, directory.Name), shareName, "0" });
+            return (int)new ManagementClass("Win32_Share").InvokeMethod("Create", [Path.Combine(directory.GetParent().FullName, directory.Name), shareName, "0"]);
         } catch(SystemException e)
         {
             Console.WriteLine("Error attempting to create share {0}:", shareName);

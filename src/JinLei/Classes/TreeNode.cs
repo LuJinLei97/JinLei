@@ -91,7 +91,7 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
             }
         }
 
-        void SetChildsParent(IList childs, TNode parent) => childs.OfType<TNode>().ForEach(t => t.Parent = parent);
+        void SetChildsParent(IList childs, TNode parent) => Extensions.ForEachExtensions.ForEach<TNode, TNode>(childs.OfType<TNode>(), t => t.Parent = parent);
     }
 }
 

@@ -22,7 +22,7 @@ public static partial class ProcessUtility
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-        }).Out(out var process).Do(process.WaitForExit);
+        }).Out(out var process).Do(t => process.WaitForExit());
 
         return new InvokeResult<string>(process.StandardOutput.Do(Trim), string.IsNullOrWhiteSpace(process.StandardError.Do(Trim).Out(out var error)), new(error));
 
