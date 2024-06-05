@@ -263,5 +263,5 @@ public static partial class StringExtensions
     public static string GetMD5(this string s) => s.GetBytes().GetMD5();
 
     /// <inheritdoc cref="File.ReadAllLines(string)"/>
-    public static string[] ReadAllLines(this string s) => s.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+    public static string[] ReadAllLines(this string s) => s.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries);
 }

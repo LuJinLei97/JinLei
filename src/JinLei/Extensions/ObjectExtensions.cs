@@ -3,30 +3,6 @@
 namespace JinLei.Extensions;
 public static partial class ObjectExtensions
 {
-    public static TResult Return<TResult>(this object source, TResult result) => result;
-
-    public static TSource Out<TSource>(this TSource source, out TSource result) => result = source;
-
-    public static TResult Do<TSource, TResult>(this TSource source, Func<TSource, TResult> @delegate, Func<TSource, bool> condition = default) => source.DoDelegate<TSource, TResult>(@delegate, condition);
-
-    #region Do
-    public static TResult DoDelegate<TSource, TResult>(this TSource source, Delegate @delegate, Delegate condition = default) => new[] { source }.ForEachDoDelegate<TSource, TResult>(@delegate, condition).FirstOrDefault();
-
-    public static object DoDelegate<TSource>(this TSource source, Delegate @delegate, Delegate condition = default) => source.DoDelegate<TSource, object>(@delegate, condition);
-
-    public static TResult Do<TSource, TResult>(this TSource source, Func<TResult> @delegate, Func<TSource, bool> condition = default) => source.DoDelegate<TSource, TResult>(@delegate, condition);
-
-    public static TSource Do<TSource, TResult>(this TSource source, Func<TSource, TResult> @delegate, out TResult result, Func<TSource, bool> condition = default) => source.Do(@delegate, condition).Out(out result).Return(source);
-
-    public static TSource Do<TSource, TResult>(this TSource source, Func<TResult> @delegate, out TResult result, Func<TSource, bool> condition = default) => source.Do(@delegate, condition).Out(out result).Return(source);
-
-    public static TSource Do<TSource>(this TSource source, Action<TSource> @delegate, Func<TSource, bool> condition = default) => source.DoDelegate<TSource, object>(@delegate, condition).Return(source);
-
-    public static TSource Do<TSource>(this TSource source, Action @delegate, Func<TSource, bool> condition = default) => source.DoDelegate<TSource, object>(@delegate, condition).Return(source);
-    #endregion
-
-    public static bool Is<TResult>(this object source, out TResult result) => (source is TResult value ? (true, value) : (false, default)).Do(t => t.value, out result).Item1;
-
     public static bool IsNull<TSource>(this TSource source) => source is null;
 
     public static TResult AsOrDefault<TResult>(this object source, TResult defaultValue = default) => source.Is<TResult>(out var result) ? result : defaultValue;

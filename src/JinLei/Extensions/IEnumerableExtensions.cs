@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 namespace JinLei.Extensions;
 public static partial class IEnumerableExtensions
 {
-    public static IEnumerable GetSelfOrEmpty(this IEnumerable items) => items.GetValueOrDefault(default(IEnumerable<object>).GetSelfOrEmpty());
+    public static IEnumerable GetSelfOrEmpty(this IEnumerable items) => items.GetValueOrDefault(GetSelfOrEmpty<object>(default)).GetSelfOrEmpty();
 
     public static IEnumerable<TSource> GetSelfOrEmpty<TSource>(this IEnumerable<TSource> items) => items.GetValueOrDefault([]);
 
@@ -20,20 +20,20 @@ public static partial class IEnumerableExtensions
 
     public static int CountOrZero<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Count();
 
-    public static bool CheckRange(this IEnumerable items, int index) => index >= 0 && index < items.CountOrZero() - 1;
+    public static bool CheckRange(this IEnumerable items, int index) => 0 <= index && index <= items.CountOrZero() - 1;
 
-    public static TCollection ToTCollection<TCollection, TSource>(this IEnumerable<TSource> items) where TCollection : ICollection<TSource>, new() => new TCollection().Do(t => t.Change(items.GetSelfOrEmpty()));
+    public static TCollection ToTCollectionOrEmpty<TCollection, TSource>(this IEnumerable<TSource> items) where TCollection : ICollection<TSource>, new() => items is TCollection collection ? collection.GetSelfOrEmpty() : [.. items.GetSelfOrEmpty()];
 
-    public static List<object> ToListOrEmpty(this IEnumerable items) => items.GetSelfOrEmpty().Out(out var items2).Is<ICollection>(out var collection) ? new List<object>(collection.Count).Do(t => t.AddRange(collection.ToObjects())) : items2.ToListOrEmpty();
+    public static List<TSource> ToListOrEmpty<TSource>(this IEnumerable<TSource> items) => items.ToTCollectionOrEmpty<List<TSource>, TSource>();
 
     public static List<TSource> ToListOrEmpty<TSource>(this IEnumerable<TSource> items) => items.GetSelfOrEmpty().Out(out var items2).Is<ICollection<TSource>>(out var collection) ? new List<TSource>(collection.Count).Do(t => t.AddRange(collection)) : new LinkedList<TSource>(items2).ToList();
 
     #region ICollection Functions
-    public static void CopyTo<TSource>(this IEnumerable<TSource> items, TSource[] array, int arrayIndex) => items.ForEach(t => array[arrayIndex++] = t, whilePredicate: t => arrayIndex >= 0 && arrayIndex < array.Length - 1);
+    public static void CopyTo<TSource>(this IEnumerable<TSource> items, TSource[] array, int arrayIndex) => items.ForEach(t => array[arrayIndex++] = t, t => array.CheckRange(arrayIndex));
     #endregion
 
     #region IList Functions
-    public static int IndexOf<TSource>(this IEnumerable<TSource> items, TSource item) => items.SelectIndexValue().Where(t => t.Value.Equals(item)).Out(out var results).Any() ? results.First().Key : -1;
+    public static int IndexOf<TSource>(this IEnumerable<TSource> items, TSource item) => items.ForEachIterator((t, i) => i, (t, i) => t.Equals(item)).Do(t => t.FirstOrDefault(), out var index).Any() ? index : -1;
     #endregion
 
     #region List Functions
