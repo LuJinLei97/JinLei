@@ -22,7 +22,7 @@ public static partial class IListExtensions
             {
                 if(items.CheckRange(index))
                 {
-                    Extensions.ForEachExtensions.ForEach<int>(Enumerable.Range(1, maxCount), (v, i) => items.RemoveAt(index), whilePredicate: (v, i) => items.CheckRange(index));
+                    Enumerable.Range(1, maxCount).ForEach((v, i) => items.RemoveAt(index), (v, i) => items.CheckRange(index));
                 } else
                 {
                     ICollectionExtensions.Change(items, values, action, maxCount);
@@ -51,7 +51,7 @@ public static partial class IListExtensions
                 list.Capacity = index + 8;
             } else
             {
-                Extensions.ForEachExtensions.ForEach<int>(Enumerable.Range(sources.Count, index - sources.Count + 8), t => sources.Add(default));
+                Enumerable.Range(sources.Count, index - sources.Count + 8).ForEach(t => sources.Add(default));
             }
         }
 

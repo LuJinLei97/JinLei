@@ -9,10 +9,10 @@ public static partial class PathUtility
     {
         try
         {
-            return Path.GetFullPath(path).Out(out fullPath).Return(true);
+            return true.Do(t => Path.GetFullPath(path), out fullPath);
         } catch
         {
-            return string.Empty.Out(out fullPath).Return(false);
+            return false.Do(t => string.Empty, out fullPath);
         }
     }
 
