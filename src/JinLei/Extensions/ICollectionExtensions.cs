@@ -48,13 +48,4 @@ public static partial class ICollectionExtensions
 
         return false;
     }
-
-    #region List Functions
-    public static int RemoveAll<TSource>(this ICollection<TSource> items, Predicate<TSource> match)
-    {
-        var count1 = items?.Count;
-        items?.Change(items?.Where(t => match(t)), NotifyCollectionChangedAction.Remove);
-        return (items?.Count - count1).GetValueOrDefault();
-    }
-    #endregion
 }

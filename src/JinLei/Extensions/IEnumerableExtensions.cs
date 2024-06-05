@@ -17,17 +17,5 @@ public static partial class IEnumerableExtensions
 
     public static TCollection ToTCollectionOrEmpty<TCollection, TSource>(this IEnumerable<TSource> items) where TCollection : ICollection<TSource>, new() => items is TCollection collection ? collection.GetSelfOrEmpty() : [.. items.GetSelfOrEmpty()];
 
-    public static List<TSource> ToListOrEmpty<TSource>(this IEnumerable<TSource> items) => items.ToTCollectionOrEmpty<List<TSource>, TSource>();
-
-    #region ICollection Functions
-    public static void CopyTo<TSource>(this IEnumerable<TSource> items, TSource[] array, int arrayIndex) => items.ForEach(t => array[arrayIndex++] = t, t => array.CheckRange(arrayIndex));
-    #endregion
-
-    #region IList Functions
-    public static int IndexOf<TSource>(this IEnumerable<TSource> items, TSource item) => items.ForEachIterator((t, i) => i, (t, i) => t.Equals(item)).Do(t => t.FirstOrDefault(), out var index).Any() ? index : -1;
-    #endregion
-
-    #region List Functions
-    public static List<TSource> GetRange<TSource>(this IEnumerable<TSource> items, int index, int count) => items.GetSelfOrEmpty().Skip(index).Take(count).ToListOrEmpty();
-    #endregion
+    public static LinkedList<TSource> ToLinkedListOrEmpty<TSource>(this IEnumerable<TSource> items) => items.ToTCollectionOrEmpty<LinkedList<TSource>, TSource>();
 }

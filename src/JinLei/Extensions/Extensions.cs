@@ -192,7 +192,7 @@ public static class MD5Extensions
 
 public static partial class ResxExtensions
 {
-    public static List<KeyValuePair<string, T>> ToList<T>(this ResXResourceReader resXResourceReader) => resXResourceReader.Cast<DictionaryEntry>().Select(t => t.ToKeyValuePair<string, T>()).ToListOrEmpty();
+    public static List<KeyValuePair<string, T>> ToList<T>(this ResXResourceReader resXResourceReader) => resXResourceReader.Cast<DictionaryEntry>().Select(t => t.ToKeyValuePair<string, T>()).ToList();
 
     public static void AddResources<T>(this ResXResourceWriter resXResourceWriter, IEnumerable<KeyValuePair<string, T>> keyValues) => keyValues?.ForEach(keyValue => resXResourceWriter.AddResource(keyValue.Key, keyValue.Value));
 }

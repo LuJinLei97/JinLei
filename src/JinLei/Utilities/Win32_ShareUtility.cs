@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Management;
 
-using JinLei.Classes;
 using JinLei.Extensions;
 
 namespace JinLei.Utilities;
@@ -55,13 +54,13 @@ public static partial class Win32_ShareUtility
         }
     }
 
-    public static InvokeResult<string> NetShareDelete(string shareName) => NetShareInvoke($@" ""{shareName}"" /delete");
+    public static TaskCompletionSource<string> NetShareDelete(string shareName) => NetShareInvoke($@" ""{shareName}"" /delete");
 
-    public static InvokeResult<string> NetShareMake(DirectoryInfo directory, string shareName = default, string arguments = default)
+    public static TaskCompletionSource<string> NetShareMake(DirectoryInfo directory, string shareName = default, string arguments = default)
     {
         shareName = string.IsNullOrWhiteSpace(shareName) ? directory.Name : shareName;
 
-        if(string.IsNullOrWhiteSpace(NetShareInvoke($@" ""{shareName}"" ").Value) == false)
+        if(string.IsNullOrWhiteSpace(NetShareInvoke($@" ""{shareName}"" ").Task.Result) == false)
         {
             NetShareDelete(shareName);
         }
@@ -69,5 +68,5 @@ public static partial class Win32_ShareUtility
         return NetShareInvoke($@" ""{shareName}""=""{directory.FullName}"" {arguments}");
     }
 
-    public static InvokeResult<string> NetShareInvoke(string arguments) => ProcessUtility.InvokeCMD($@"net share {arguments}");
+    public static TaskCompletionSource<string> NetShareInvoke(string arguments) => ProcessUtility.InvokeCMD($@"net share {arguments}");
 }
