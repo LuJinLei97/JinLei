@@ -8,7 +8,7 @@ public static class TextTrimmedSetToolTip
 {
     public static readonly DependencyProperty IsToolTipProperty = DependencyProperty.RegisterAttached(nameof(IsToolTipProperty).TrimEnd("Property"), typeof(bool), typeof(TextTrimmedSetToolTip), new PropertyMetadata(default(bool), RegisterSizeChangedCallback));
 
-    public static bool GetIsToolTip(DependencyObject element) => element.GetValue(IsToolTipProperty).AsOrDefault<bool>();
+    public static bool GetIsToolTip(DependencyObject element) => element.GetValue(IsToolTipProperty).AsDynamicOrDefault();
 
     public static void SetIsToolTip(DependencyObject element, bool value) => element.SetValue(IsToolTipProperty, value);
 

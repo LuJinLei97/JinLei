@@ -12,7 +12,7 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
     [JsonIgnore]
     public virtual TNode Root
     {
-        get => root ?? this?.Parent?.Root ?? this.AsOrDefault<TNode>();
+        get => root ?? this?.Parent?.Root ?? this.AsDynamicOrDefault();
         set
         {
             if(root == value)

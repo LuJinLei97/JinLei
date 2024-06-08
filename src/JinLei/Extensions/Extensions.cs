@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 
 using JinLei.Utilities;
 
+using Point = System.Windows.Point;
+
 namespace JinLei.Extensions;
 public static partial class CookieContainerExtensions
 {
@@ -209,53 +211,69 @@ public static partial class StreamExtensions
 public static partial class StringExtensions
 {
     [Flags]
-    public enum TrimType { None, Start, End, All }
-
-    /// <inheritdoc cref="string.Trim()"/>
-    public static string Trim(this string s, string trimString, TrimType trimType = TrimType.All)
+    public enum TrimType
     {
-        var stringBuilder = new StringBuilder(s);
-        try
-        {
-            while(true)
-            {
-                var startTrimed = false;
-                var endTrimed = false;
-                if(trimType.HasFlag(TrimType.Start))
-                {
-                    if(stringBuilder.ToString(0, trimString.Length) == trimString)
-                    {
-                        stringBuilder.Remove(0, trimString.Length);
-                        startTrimed = true;
-                    }
-                }
+        /// <summary>
+        /// Trim from the beginning of the string.
+        /// </summary>
+        Head = 1 << 0,
 
-                if(trimType.HasFlag(TrimType.End))
-                {
-                    if(stringBuilder.ToString(stringBuilder.Length - trimString.Length, trimString.Length) == trimString)
-                    {
-                        stringBuilder.Remove(stringBuilder.Length - trimString.Length, trimString.Length);
-                        endTrimed = true;
-                    }
-                }
+        /// <summary>
+        /// Trim from the end of the string.
+        /// </summary>
+        Tail = 1 << 1,
 
-                if((startTrimed || endTrimed) == false)
-                {
-                    break;
-                }
-            }
-        } catch { }
-
-        return stringBuilder.ToString();
+        /// <summary>
+        /// Trim from both the beginning and the end of the string.
+        /// </summary>
+        Both = Head | Tail
     }
 
-    #region Trim DerivedMethod
+    private static string TrimHelper(this string s, string[] trimStrings, TrimType trimType = TrimType.Both)
+    {
+        trimStrings = [.. trimStrings.GetSelfOrEmpty().OrderByDescending(t => t.Length)];
+
+        // end will point to the first non-trimmed string on the right.
+        // start will point to the first non-trimmed string on the left.
+        var end = s.Length - 1;
+        var start = 0;
+
+        // Trim specified strings.
+        if((trimType & TrimType.Head) != 0)
+        {
+            TrimByType(TrimType.Head);
+        }
+
+        if((trimType & TrimType.Tail) != 0)
+        {
+            TrimByType(TrimType.Tail);
+        }
+
+        var rect = new Rect(new Point(start, 0), new Point(end, 0));
+        return s.SubstringEatException((int)rect.Left, (int)rect.Width + 1);
+
+        void TrimByType(TrimType trimType)
+        {
+        Serach:
+            foreach(var trimString in trimStrings)
+            {
+                if(s.SubstringEatException(trimType == TrimType.Head ? start : end, trimString.Length * (trimType == TrimType.Head ? 1 : -1)) == trimString)
+                {
+                    _ = trimType == TrimType.Head ? start += trimString.Length : end -= trimString.Length;
+                    goto Serach;
+                }
+            }
+        }
+    }
+
+    /// <inheritdoc cref="string.Trim()"/>
+    public static string Trim(this string s, params string[] trimStrings) => s.TrimHelper(trimStrings, TrimType.Both);
+
     /// <inheritdoc cref="string.TrimStart(char[])"/>
-    public static string TrimStart(this string s, string trimString) => s.Trim(trimString, TrimType.Start);
+    public static string TrimStart(this string s, params string[] trimStrings) => s.TrimHelper(trimStrings, TrimType.Head);
 
     /// <inheritdoc cref="string.TrimEnd(char[])"/>
-    public static string TrimEnd(this string s, string trimString) => s.Trim(trimString, TrimType.End);
-    #endregion
+    public static string TrimEnd(this string s, params string[] trimStrings) => s.TrimHelper(trimStrings, TrimType.Tail);
 
     /// <inheritdoc cref="Encoding.GetBytes(string)"/>
     public static byte[] GetBytes(this string s, Encoding encoding = default) => (encoding ?? Encoding.UTF8).GetBytes(s);
@@ -264,4 +282,21 @@ public static partial class StringExtensions
 
     /// <inheritdoc cref="File.ReadAllLines(string)"/>
     public static string[] ReadAllLines(this string s) => s.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries);
+
+    public static string SubstringEatException(this string s, int startIndex, int length)
+    {
+        var result = string.Empty;
+
+        try
+        {
+            var rect = new Rect(new System.Windows.Point(startIndex, 0), new Vector(length += length >= 0 ? -1 : 1, 0));
+            rect.Intersect(new Rect(new System.Windows.Point(0, 0), new Vector(s.Length - 1, 0)));
+            if(rect.IsEmpty == false)
+            {
+                result = s.Substring((int)rect.Left, (int)rect.Width + 1);
+            }
+        } catch { }
+
+        return result;
+    }
 }

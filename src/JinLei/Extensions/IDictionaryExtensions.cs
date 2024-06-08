@@ -16,7 +16,7 @@ public static partial class IDictionaryExtensions
         }
     }
 
-    public static bool TryGetValueNonException<TKey, TValue>(this IDictionary<TKey, TValue> keyValues, TKey key, out TValue result) => (key.IsNull() == false).Do(t => default, out result) && keyValues.TryGetValue(key, out result);
+    public static bool TryGetValueEatException<TKey, TValue>(this IDictionary<TKey, TValue> keyValues, TKey key, out TValue result) => (key.IsNull() == false).Do(t => default, out result) && keyValues.TryGetValue(key, out result);
 
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<TKey> keys, IEnumerable<TValue> values)
     {

@@ -15,38 +15,30 @@ public partial class Localization : DependencyObject
 
     public virtual string Key
     {
-        get => GetValue(KeyProperty).AsOrDefault<string>();
+        get => GetValue(KeyProperty).AsDynamicOrDefault();
         set => SetValue(KeyProperty, value);
     }
-    public static readonly DependencyProperty KeyProperty = DependencyProperty.Register(nameof(Key), typeof(string), typeof(Localization), new PropertyMetadata(ResourceChanged));
+    public static readonly DependencyProperty KeyProperty = DependencyProperty.Register(nameof(Key), ObjectExtensions.GetTypeFromCaller(nameof(Key)), ObjectExtensions.GetTypeFromCaller(string.Empty), new PropertyMetadata(ResourceChanged));
 
     public virtual string Value
     {
-        get => GetValue(ValueProperty).AsOrDefault<string>();
+        get => GetValue(ValueProperty).AsDynamicOrDefault();
         set => SetValue(ValueProperty, value);
     }
-    public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(nameof(Value), typeof(string), typeof(Localization), new PropertyMetadata(ResourceChanged));
+    public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(nameof(Value), ObjectExtensions.GetTypeFromCaller(nameof(Value)), ObjectExtensions.GetTypeFromCaller(string.Empty), new PropertyMetadata(ResourceChanged));
 
     public static void ResourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => d.AsOrDefault<Localization>()?.ResourceChangedImplementation(e);
 
     public virtual void ResourceChangedImplementation(DependencyPropertyChangedEventArgs e)
     {
-        if(Utilities.Utilities.IsInDesignMode)
+        if(Utilities.Utilities.IsInDesignMode && DesignModeStringResources.TryGetValueEatException(Key, out var value))
         {
-            if(Key.IsNull() == false && Value.IsNull())
+            if(Value.IsNull())
             {
-                var isContainsKey = DesignModeStringResources.TryGetValue(Key, out var value);
-
-                if(Value.IsNull())
-                {
-                    Value = value;
-                } else
-                {
-                    if(isContainsKey == false || Value != value)
-                    {
-                        ResxWriter.Enabled = WriteResxOnResourceChanged;
-                    }
-                }
+                Value = value;
+            } else
+            {
+                ResxWriter.Enabled = WriteResxOnResourceChanged;
             }
         }
     }
