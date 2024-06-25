@@ -1,4 +1,5 @@
 ﻿using System.Collections.Specialized;
+using System.Windows;
 
 namespace JinLei.Extensions;
 
@@ -36,6 +37,8 @@ public static partial class IListExtensions
             }
         }
     }
+
+    public static List<TSource> GetRange<TSource>(this IEnumerable<TSource> items, int index, int count) => new Rect(new System.Windows.Point(index, 0), new Vector(count, 0)).Out(out var rect).Return(items.GetSelfOrEmpty().Skip((int)rect.Left).Take((int)rect.Width).ToList());
 
     public static void Set<TSource>(this IList<TSource> sources, int index, TSource value)
     {

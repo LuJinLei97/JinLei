@@ -21,6 +21,10 @@ public static partial class ICollectionExtensions
         }
     }
 
+    public static TCollection ToTCollectionOrEmpty<TCollection, TSource>(this IEnumerable<TSource> items) where TCollection : ICollection<TSource>, new() => items is TCollection collection ? collection.GetSelfOrEmpty() : [.. items.GetSelfOrEmpty()];
+
+    public static LinkedList<TSource> ToLinkedListOrEmpty<TSource>(this IEnumerable<TSource> items) => items.ToTCollectionOrEmpty<LinkedList<TSource>, TSource>();
+
     public static IEnumerable<LinkedListNode<T>> EnumerateLinkedListNodes<T>(this LinkedList<T> linkedList, bool isReverse = false)
     {
         if(linkedList.IsNullOrEmpty())
