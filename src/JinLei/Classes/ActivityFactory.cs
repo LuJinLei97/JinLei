@@ -8,7 +8,7 @@ namespace JinLei.Classes;
 /// <summary>
 /// .NET Framework 内置活动库 Factory
 /// </summary>
-public static class ActivityFactory
+public partial class ActivityFactory
 {
     #region 基元
     public static Assign Assign() => new();

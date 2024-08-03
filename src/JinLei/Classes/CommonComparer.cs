@@ -1,12 +1,16 @@
 ﻿using JinLei.Extensions;
 
 namespace JinLei.Classes;
-/// <inheritdoc cref="IComparer{T}"/>
-public class CommonComparer<T> : IComparer<T>, IEqualityComparer<T>
-{
-    public virtual int Compare(T x, T y) => Comparison(x, y);
 
-    public virtual bool Equals(T x, T y) => equalityComparison.IsNull() == false ? EqualityComparison(x, y) : x is IEquatable<T> equatableX ? equatableX.Equals(y) : Comparison(x, y) == 0;
+/// <inheritdoc cref="IComparer{T}"/>
+public partial class CommonComparer<T> : IComparer<T>, IEqualityComparer<T>
+{
+    /// <inheritdoc/>
+    public virtual int Compare(T x, T y) => Comparison(x, y);
+    /// <inheritdoc/>
+
+    public virtual bool Equals(T x, T y) => equalityComparison.IsNull() == false || comparison.IsNull() ? EqualityComparison(x, y) : Comparison(x, y) == 0;
+    /// <inheritdoc/>
 
     public virtual int GetHashCode(T x) => GetHashCodeFunc(x);
 

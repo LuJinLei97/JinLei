@@ -72,13 +72,25 @@ public static partial class DelegateExtensions
         WriteLine(string.Format(toFuncTemplate, typeNames, typeNames.ToLower()));
     }
 #>
+
+    public static Func<bool> ToFunc(this Action action) => action.ToFunc(true);
+<#
+    var toFuncTemplate2 = @"
+    public static Func<{0}, bool> ToFunc<{0}>(this Action<{0}> action) => action.ToFunc(true);";
+
+    for(var i = 1; i <= 16; i++)
+    {
+        var typeNames = GetTypeNames(typeNameList.GetRange(0, i));
+        WriteLine(string.Format(toFuncTemplate2, typeNames));
+    }
+#>
     #endregion
 
     #region ActionAddParam
-    public static Action<TParam> AddParam<TParam>(this Action action, TParam param) => action.ToFunc(true).AddParam(param).ToAction();
+    public static Action<TParam> AddParam<TParam>(this Action action, TParam param) => action.ToFunc().AddParam(param).ToAction();
 <#
     var actionAddParamTemplate = @"
-    public static Action<{0}, TParam> AddParam<{0}, TParam>(this Action<{0}> action, TParam param) => action.ToFunc(true).AddParam(param).ToAction();";
+    public static Action<{0}, TParam> AddParam<{0}, TParam>(this Action<{0}> action, TParam param) => action.ToFunc().AddParam(param).ToAction();";
 
     for(var i = 1; i <= 15; i++)
     {
@@ -89,10 +101,10 @@ public static partial class DelegateExtensions
     #endregion
 
     #region ActionSubParam
-    public static Action SubParam<T1>(this Action<T1> action, T1 defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();
+    public static Action SubParam<T1>(this Action<T1> action, T1 defaultParam = default) => action.ToFunc().SubParam(defaultParam).ToAction();
 <#
     var actionSubParamTemplate = @"
-    public static Action<{1}> SubParam<{0}>(this Action<{0}> action, {2} defaultParam = default) => action.ToFunc(true).SubParam(defaultParam).ToAction();";
+    public static Action<{1}> SubParam<{0}>(this Action<{0}> action, {2} defaultParam = default) => action.ToFunc().SubParam(defaultParam).ToAction();";
 
     for(var i = 2; i <= 16; i++)
     {

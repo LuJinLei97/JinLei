@@ -4,16 +4,16 @@ namespace JinLei.Extensions;
 
 public static partial class ICollectionExtensions
 {
-    public static void Change<TSource>(this ICollection<TSource> items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int maxCount = int.MaxValue)
+    public static void Change<TSource>(this ICollection<TSource> items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int maxCount = int.MaxValue / 2)
     {
         if(items.IsNull() == false)
         {
             if(action == NotifyCollectionChangedAction.Add)
             {
-                values?.ForEach((v, i) => items.Add(v), whilePredicate: (v, i) => i < maxCount);
+                values?.ForEachDo((v, i) => items.Add(v), whilePredicate: (v, i) => i < maxCount);
             } else if(action == NotifyCollectionChangedAction.Remove)
             {
-                values?.ForEach((v, i) => items.Remove(v), whilePredicate: (v, i) => i < maxCount);
+                values?.ForEachDo((v, i) => items.Remove(v), whilePredicate: (v, i) => i < maxCount);
             } else if(action == NotifyCollectionChangedAction.Reset)
             {
                 items.Clear();
@@ -21,9 +21,9 @@ public static partial class ICollectionExtensions
         }
     }
 
-    public static TCollection ToTCollectionOrEmpty<TCollection, TSource>(this IEnumerable<TSource> items) where TCollection : ICollection<TSource>, new() => items is TCollection collection ? collection.GetSelfOrEmpty() : [.. items.GetSelfOrEmpty()];
+    public static TCollection ToTCollection<TCollection, TSource>(this IEnumerable<TSource> items) where TCollection : ICollection<TSource>, new() => items.Is<TCollection>(out var collection) ? collection : [.. items.GetSelfOrEmpty()];
 
-    public static LinkedList<TSource> ToLinkedListOrEmpty<TSource>(this IEnumerable<TSource> items) => items.ToTCollectionOrEmpty<LinkedList<TSource>, TSource>();
+    public static LinkedList<TSource> ToLinkedList<TSource>(this IEnumerable<TSource> items) => items.ToTCollection<LinkedList<TSource>, TSource>();
 
     public static IEnumerable<LinkedListNode<T>> EnumerateLinkedListNodes<T>(this LinkedList<T> linkedList, bool isReverse = false)
     {
@@ -32,7 +32,7 @@ public static partial class ICollectionExtensions
             yield break;
         }
 
-        for((var i, var node) = isReverse ? (linkedList.Count - 1, linkedList.Last) : (0, linkedList.First); linkedList.CheckRange(i); (i, node) = isReverse ? (i - 1, node.Previous) : (i + 1, node.Next))
+        for((var i, var node) = (0, isReverse ? linkedList.Last : linkedList.First); linkedList.CheckRange(i); (i, node) = (i + 1, isReverse ? node.Previous : node.Next))
         {
             yield return node;
         }

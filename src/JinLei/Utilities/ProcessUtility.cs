@@ -3,31 +3,52 @@ using System.Diagnostics;
 using System.IO;
 using System.Management.Automation;
 
+using JinLei.Classes;
 using JinLei.Extensions;
 
 namespace JinLei.Utilities;
-public static partial class ProcessUtility
+
+public partial class ProcessUtility
 {
-    public static Collection<PSObject> InvokePowershell(string command)
+    public static Collection<PSObject> InvokePowerShell(string command)
     {
         using var powerShell = PowerShell.Create().AddScript(command);
         return powerShell.Invoke();
     }
 
-    public static TaskCompletionSource<string> InvokeEXE(string fileName, string arguments)
+    public static TaskCompletionSource<string> Start(Process process, ProcessMode processMode = ProcessMode.SyncMode, ProcessMode outputStreamReadMode = ProcessMode.SyncMode, ProcessMode errorStreamReadMode = ProcessMode.SyncMode)
     {
-        Process.Start(new ProcessStartInfo(fileName, arguments)
+        if(outputStreamReadMode != ProcessMode.Undefined)
         {
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-        }).Out(out var process).Do(t => process.WaitForExit());
+
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+        }
+
+        if(errorStreamReadMode != ProcessMode.Undefined)
+        {
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardError = true;
+        }
+
+        process.Start();
+        process.Do(t => t.BeginOutputReadLine(), t => outputStreamReadMode == ProcessMode.AsyncMode);
+        process.Do(t => t.BeginErrorReadLine(), t => errorStreamReadMode == ProcessMode.AsyncMode);
+        process.Do(t => t.WaitForExit(), t => processMode == ProcessMode.SyncMode);
 
         var result = new TaskCompletionSource<string>();
-        result.TrySetResult(process.StandardOutput.Do(Trim));
-        if(string.IsNullOrWhiteSpace(process.StandardError.Do(Trim).Out(out var error)))
+
+        if(outputStreamReadMode == ProcessMode.SyncMode)
         {
-            result.TrySetException(new Exception(error));
+            result.TrySetResult(process.StandardOutput.Do(Trim));
+        }
+
+        if(errorStreamReadMode == ProcessMode.SyncMode)
+        {
+            if(process.StandardError.EndOfStream == false && string.IsNullOrWhiteSpace(process.StandardError.Do(Trim).Out(out var error)) == false)
+            {
+                result.TrySetException(new Exception(error));
+            }
         }
 
         return result;
@@ -35,9 +56,29 @@ public static partial class ProcessUtility
         string Trim(StreamReader s) => s.ReadToEnd().Trim(Environment.NewLine);
     }
 
+    public static TaskCompletionSource<string> Start(ProcessStartInfo processStartInfo, out Process process, ProcessMode processMode = ProcessMode.SyncMode, ProcessMode outputStreamReadMode = ProcessMode.SyncMode, ProcessMode errorStreamReadMode = ProcessMode.SyncMode) => new Process() { StartInfo = processStartInfo }.Out(out process).Do(t => Start(t, processMode, outputStreamReadMode, errorStreamReadMode));
+
+    public static TaskCompletionSource<string> Start(string fileName, string arguments, out Process process, ProcessMode processMode = ProcessMode.SyncMode, ProcessMode outputStreamReadMode = ProcessMode.SyncMode, ProcessMode errorStreamReadMode = ProcessMode.SyncMode) => Start(new(fileName, arguments), out process, processMode, outputStreamReadMode, errorStreamReadMode);
+
+    public static TaskCompletionSource<string> InvokeEXE(string fileName, string arguments) => Start(fileName, arguments, out _, ProcessMode.SyncMode, ProcessMode.SyncMode, ProcessMode.SyncMode);
+
     public static TaskCompletionSource<string> InvokeCMD(string command) => InvokeEXE("cmd", $"/c {command}");
 
-    public static TaskCompletionSource<string> MakeDirectoryLink(DirectoryInfo source, DirectoryInfo target) => InvokeCMD($"MkLink / D {target.FullName} {source.FullName}");
+    public partial class CMDUtility
+    {
+        public static TaskCompletionSource<string> MakeLink(FileSystemInfo source, FileSystemInfo target, string arguments = default)
+        {
+            if(source is DirectoryInfo && target is DirectoryInfo)
+            {
+                return ProcessUtility.InvokeCMD($"MkLink {arguments ?? "/D"} {target.FullName} {source.FullName}");
+            } else if(source is FileInfo && target is FileInfo)
+            {
+                return ProcessUtility.InvokeCMD($"MkLink {arguments} {target.FullName} {source.FullName}");
+            }
 
-    public static TaskCompletionSource<string> JustCopyDirectory(DirectoryInfo source, DirectoryInfo target) => InvokeCMD($"XCopy {source.FullName} {target.FullName} /T /E");
+            return new TaskCompletionSource<string>();
+        }
+
+        public static TaskCompletionSource<string> JustCopyDirectory(DirectoryInfo source, DirectoryInfo target) => ProcessUtility.InvokeCMD($"XCopy {source.FullName} {target.FullName} /T /E");
+    }
 }

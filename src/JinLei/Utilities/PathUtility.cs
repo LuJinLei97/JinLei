@@ -3,7 +3,8 @@
 using JinLei.Extensions;
 
 namespace JinLei.Utilities;
-public static partial class PathUtility
+
+public partial class PathUtility
 {
     public static bool TryGetFullPath(string path, out string fullPath)
     {

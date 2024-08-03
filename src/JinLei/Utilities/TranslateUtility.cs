@@ -1,12 +1,14 @@
 ﻿using System.IO;
 using System.Net;
+using System.Text;
 
 using JinLei.Extensions;
 
 using Newtonsoft.Json.Linq;
 
 namespace JinLei.Utilities;
-public static partial class TranslateUtility
+
+public partial class TranslateUtility
 {
     /// <summary>
     /// 获取百度翻译译文
@@ -15,7 +17,7 @@ public static partial class TranslateUtility
     {
         var url = "http://api.fanyi.baidu.com/api/trans/vip/translate";
         var salt = new Random().Next(0, 1000).ToString();
-        var sign = (appId + queryString + salt + secretKey).GetMD5();
+        var sign = MD5Utility.GetMD5(Encoding.UTF8.GetBytes(appId + queryString + salt + secretKey));
 
         url = $"{url}?appid={appId}&q={WebUtility.UrlEncode(queryString)}&from={from}&to={to}&salt={salt}&sign={sign}";
 
@@ -32,12 +34,12 @@ public static partial class TranslateUtility
     {
         sourceFile ??= ConsoleUtility.ReadFilePath();
 
-        var translated = ResxUtility.ReadToDictionary<string>(new(sourceFile.FullName)).ToDictionary(t => t.Key, t => BaiduFanyi(appId, secretKey, t.Value, from, to));
+        var translated = ResxUtility.ReadToDictionary<string>(sourceFile.FullName).ToDictionary(t => t.Key, t => BaiduFanyi(appId, secretKey, t.Value, from, to));
 
         if(string.IsNullOrWhiteSpace(newFileName) == false)
         {
-            var targetFile = new FileInfo(Path.Combine(sourceFile.DirectoryName, newFileName)).GetPathNonAlreadyExists();
-            ResxUtility.WriteFromItems(new(targetFile.FullName), translated);
+            var targetFile = new FileInfo(Path.Combine(sourceFile.DirectoryName, newFileName)).GetUnoccupiedPath();
+            ResxUtility.WriteFromItems(targetFile.FullName, translated);
         }
 
         return translated;

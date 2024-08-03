@@ -1,83 +1,53 @@
-﻿namespace JinLei.Extensions;
+﻿//#define DebugForEachIterator
+
+using JinLei.Classes;
+
+namespace JinLei.Extensions;
 
 public static partial class ForEachExtensions
 {
-    public static IEnumerable<TResult> ForEachIterator<TSource, TResult>(this IEnumerable<TSource> items, Delegate @delegate, Delegate wherePredicate = default, Delegate whilePredicate = default, Delegate skipPredicate = default)
+    public static IEnumerable<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, TResult> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default)
     {
         if(@delegate.IsNull())
         {
-            goto Break;
+            goto End;
         }
 
-        var itemFuncResult = @delegate switch
-        {
-            Func<TSource, int, TResult> d => d,
-            Func<TSource, TResult> d => d.AddParam(0),
-            Action<TSource, int> d => d.ToFunc(default(TResult)),
-            Action<TSource> d => d.AddParam(0).ToFunc(default(TResult)),
-            _ => throw new NotImplementedException(),
-        };
+        wherePredicate ??= (t, i) => true;
+        whilePredicate ??= (t, i) => true;
 
-        var wherePredicateResult = wherePredicate switch
+        foreach(var iv in items.SelectIndexValue())
         {
-            null => (t, i) => true,
-            Func<TSource, int, bool> d => d,
-            Func<TSource, bool> d => d.AddParam(0),
-            Func<bool> d => d.AddParam(default(TSource)).AddParam(0),
-            _ => throw new NotImplementedException(),
-        };
-
-        var whilePredicateResult = whilePredicate switch
-        {
-            null => (t, i) => true,
-            Func<TSource, int, bool> d => d,
-            Func<TSource, bool> d => d.AddParam(0),
-            Func<bool> d => d.AddParam(default(TSource)).AddParam(0),
-            _ => throw new NotImplementedException(),
-        };
-
-        var skipPredicateResult = skipPredicate switch
-        {
-            null => (t, i) => false,
-            Func<TSource, int, bool> d => d,
-            Func<TSource, bool> d => d.AddParam(0),
-            Func<bool> d => d.AddParam(default(TSource)).AddParam(0),
-            _ => throw new NotImplementedException(),
-        };
-
-        foreach(var item in items.SelectIndexValue())
-        {
-            if(whilePredicateResult(item.Value, item.Key) == false)
+            if(whilePredicate(iv.Value, iv.Key) == false)
             {
-                goto Break;
+                goto End;
             }
 
-            if(skipPredicateResult(item.Value, item.Key))
+            if(wherePredicate(iv.Value, iv.Key))
             {
-                continue;
-            }
-
-            if(wherePredicateResult(item.Value, item.Key))
-            {
-                yield return itemFuncResult(item.Value, item.Key);
+                yield return @delegate(iv.Value, iv.Key);
             }
         }
 
-    Break:
+    End:
         yield break;
     }
 
-    public static IEnumerable<TResult> ForEachIterator<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, TResult> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default, Func<TSource, int, bool> skipPredicate = default) => items.ForEachIterator<TSource, TResult>(@delegate as Delegate, wherePredicate, whilePredicate, skipPredicate);
+    public static IEnumerable<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, TResult> @delegate, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default) => items.ForEach(@delegate.AddParam(0), wherePredicate.AddParam(0), whilePredicate.AddParam(0));
 
-    public static IEnumerable<TResult> ForEachIterator<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, TResult> @delegate, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default, Func<TSource, bool> skipPredicate = default) => items.ForEachIterator<TSource, TResult>(@delegate as Delegate, wherePredicate, whilePredicate, skipPredicate);
-
-    /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
-    /// </summary>
-    public static LinkedList<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, TResult> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default, Func<TSource, int, bool> skipPredicate = default) => items.ForEachIterator(@delegate, wherePredicate, whilePredicate, skipPredicate).ToTCollectionOrEmpty<LinkedList<TResult>, TResult>();
+    public static LinkedList<TResult> ForEachDo<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, TResult> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default) => items.ForEach(@delegate, wherePredicate, whilePredicate).ToLinkedList();
 
-    /// <summary>
     /// <inheritdoc cref="List{T}.ForEach(Action{T})"/>
-    /// </summary>
-    public static LinkedList<TResult> ForEach<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, TResult> @delegate, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default, Func<TSource, bool> skipPredicate = default) => items.ForEachIterator(@delegate, wherePredicate, whilePredicate, skipPredicate).ToTCollectionOrEmpty<LinkedList<TResult>, TResult>();
+    public static LinkedList<TResult> ForEachDo<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, TResult> @delegate, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default) => items.ForEach(@delegate, wherePredicate, whilePredicate).ToLinkedList();
+
+    #region ForEachThenByKey
+    public static IEnumerable<TResult> ForEachThenByKey<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, KeyValuePair<bool, TResult>> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default, ConditionType conditionType = ConditionType.Where) => items.ForEach(@delegate, wherePredicate, whilePredicate).ForEach(t => t.Value, conditionType == ConditionType.Where ? t => t.Key : default, conditionType == ConditionType.While ? t => t.Key : default);
+
+    public static IEnumerable<TResult> ForEachThenByKey<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, KeyValuePair<bool, TResult>> @delegate, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default, ConditionType conditionType = ConditionType.Where) => items.ForEachThenByKey(@delegate.AddParam(0), wherePredicate.AddParam(0), whilePredicate.AddParam(0), conditionType);
+
+    public static LinkedList<TResult> ForEachThenByKeyDo<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, int, KeyValuePair<bool, TResult>> @delegate, Func<TSource, int, bool> wherePredicate = default, Func<TSource, int, bool> whilePredicate = default, ConditionType conditionType = ConditionType.Where) => items.ForEachThenByKey(@delegate, wherePredicate, whilePredicate, conditionType).ToLinkedList();
+
+    public static LinkedList<TResult> ForEachThenByKeyDo<TSource, TResult>(this IEnumerable<TSource> items, Func<TSource, KeyValuePair<bool, TResult>> @delegate, Func<TSource, bool> wherePredicate = default, Func<TSource, bool> whilePredicate = default, ConditionType conditionType = ConditionType.Where) => items.ForEachThenByKey(@delegate, wherePredicate, whilePredicate, conditionType).ToLinkedList();
+    #endregion
 }

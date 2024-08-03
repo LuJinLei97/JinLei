@@ -5,14 +5,14 @@ namespace JinLei.Extensions;
 
 public static partial class IDictionaryExtensions
 {
-    public static void Change<TKey, TValue>(this IDictionary<TKey, TValue> items, IEnumerable<KeyValuePair<TKey, TValue>> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue)
+    public static void Change<TKey, TValue>(this IDictionary<TKey, TValue> items, IEnumerable<KeyValuePair<TKey, TValue>> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int count = int.MaxValue / 2)
     {
         if(action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Replace)
         {
-            values?.ForEach((v, i) => items[v.Key] = v.Value, (v, i) => action == NotifyCollectionChangedAction.Replace || items.ContainsKey(v.Key) == false, (v, i) => i < count);
+            values?.ForEachDo((v, i) => items[v.Key] = v.Value, (v, i) => action == NotifyCollectionChangedAction.Replace || items.ContainsKey(v.Key) == false, (v, i) => i < count);
         } else
         {
-            ICollectionExtensions.Change(items, values, action, count);
+            (items as ICollection<KeyValuePair<TKey, TValue>>).Change(values, action, count);
         }
     }
 

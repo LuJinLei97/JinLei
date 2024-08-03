@@ -1,77 +1,63 @@
 ﻿using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.IO;
+using System.Xml.Linq;
+using System.Xml.Serialization;
 
 using JinLei.Extensions;
 
-using Newtonsoft.Json;
-
 namespace JinLei.Classes;
-public class TreeNode<TNode> where TNode : TreeNode<TNode>
+
+public partial class TreeNode<TNode> where TNode : TreeNode<TNode>
 {
-    [JsonIgnore]
-    public virtual TNode Root
-    {
-        get => root ?? this?.Parent?.Root ?? this.AsDynamicOrDefault();
-        set
-        {
-            if(root == value)
-            {
-                return;
-            }
-
-            root = value;
-        }
-    }
-    protected TNode root;
-
-    [JsonIgnore]
     public virtual TNode Parent
     {
         get => parent;
         set
         {
-            if(parent == value)
-            {
-                return;
-            }
-
             if(this is TNode node)
             {
-                parent?.Childs?.Remove(node);
+                if(parent != value)
+                {
+                    parent?.Childs?.Remove(node);
+                }
 
                 if((parent = value)?.Childs?.Contains(node) == false)
                 {
                     parent?.Childs?.Add(node);
                 }
             }
+
+            parent = value;
         }
     }
     protected TNode parent;
 
-    [JsonIgnore]
     public virtual ObservableCollection<TNode> Childs
     {
-        get => childs;
+        get
+        {
+            childs ??= [];
+            childs.CollectionChanged -= Childs_CollectionChanged;
+            childs.CollectionChanged += Childs_CollectionChanged;
+            return childs;
+        }
         set
         {
-            if(childs == value)
+            if(childs != value)
             {
-                return;
+                childs?.ForEachDo(t => t.Parent = null);
             }
 
-            childs?.ForEach(t => t.Parent = null);
-
-            if((childs = value).IsNull() == false)
+            if(this is TNode node)
             {
-                if(this is TNode node)
-                {
-                    childs?.ForEach(t => t.Parent = node);
-                }
-
-                childs.CollectionChanged -= Childs_CollectionChanged;
-                childs.CollectionChanged += Childs_CollectionChanged;
+                (childs = value)?.ForEachDo(t => t.Parent = node);
             }
+
+            childs = value;
+
+            _ = Childs;
         }
     }
     protected ObservableCollection<TNode> childs;
@@ -91,12 +77,52 @@ public class TreeNode<TNode> where TNode : TreeNode<TNode>
             }
         }
 
-        void SetChildsParent(IList childs, TNode parent) => childs.OfType<TNode>().ForEach(t => t.Parent = parent);
+        void SetChildsParent(IList childs, TNode parent) => childs.OfType<TNode>().ForEachDo(t => t.Parent = parent);
     }
 }
 
-public class TValueTreeNode<TValue, TCollection> : TreeNode<TValueTreeNode<TValue, TCollection>> where TCollection : ICollection<TValue>, new()
+public class ValueTreeNode<TValue, TCollection> : TreeNode<ValueTreeNode<TValue, TCollection>> where TCollection : ICollection<TValue>, new()
 {
-    [JsonIgnore]
-    public virtual TCollection Values { get; set; }
+    public virtual TCollection Values { get; set; } = new();
+}
+
+public class XTreeElement<TValue> : XElement
+{
+    public XTreeElement(XName name) : base(name)
+    {
+    }
+
+    public XTreeElement() : base(nameof(XTreeElement<TValue>))
+    {
+    }
+
+    public virtual TValue AdditionalValue
+    {
+        get => this.Do(t => RefreshAdditionalValue()).Return(additionalValue);
+        set => (additionalValue = value).Do(t => RefreshAdditionalValue(false));
+    }
+    private TValue additionalValue;
+
+    protected virtual XmlSerializer TValueXmlSerializer { get; } = new(typeof(TValue));
+
+    protected virtual void RefreshAdditionalValue(bool isGet = true)
+    {
+        using var stringWriter = new StringWriter();
+        TValueXmlSerializer.Serialize(stringWriter, additionalValue);
+        var tXE = XElement.Parse(stringWriter.ToString());
+
+        if(isGet)
+        {
+            var vE = Element("XTreeElement").Element(nameof(AdditionalValue));
+            if(vE.IsNull() == false)
+            {
+                tXE.Value = vE.Value;
+                var stringReader = new StringReader(tXE.ToString());
+                additionalValue = TValueXmlSerializer.Deserialize(stringReader).AsDynamicOrDefault();
+            }
+        } else
+        {
+            SetElementValue(nameof(AdditionalValue), additionalValue?.Return(tXE.Value));
+        }
+    }
 }

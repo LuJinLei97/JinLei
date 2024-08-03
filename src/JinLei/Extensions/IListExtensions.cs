@@ -1,11 +1,10 @@
 ﻿using System.Collections.Specialized;
-using System.Windows;
 
 namespace JinLei.Extensions;
 
 public static partial class IListExtensions
 {
-    public static void Change<TSource>(this IList<TSource> items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int maxCount = int.MaxValue, int? startIndex = default)
+    public static void Change<TSource>(this IList<TSource> items, IEnumerable<TSource> values = default, NotifyCollectionChangedAction action = NotifyCollectionChangedAction.Add, int maxCount = int.MaxValue / 2, int? startIndex = default)
     {
         if(items.IsNull() == false)
         {
@@ -14,31 +13,29 @@ public static partial class IListExtensions
             {
                 if(items.CheckRange(index))
                 {
-                    values?.ForEach((v, i) => items.Insert(index++, v), whilePredicate: (v, i) => i < maxCount);
+                    values?.ForEachDo((v, i) => items.Insert(index++, v), whilePredicate: (v, i) => i < maxCount);
                 } else
                 {
-                    values?.ForEach((v, i) => items.Set(index++, v), whilePredicate: (v, i) => i < maxCount);
+                    values?.ForEachDo((v, i) => items.Set(index++, v), whilePredicate: (v, i) => i < maxCount);
                 }
             } else if(action == NotifyCollectionChangedAction.Remove)
             {
                 if(items.CheckRange(index))
                 {
-                    Enumerable.Range(1, maxCount).ForEach((v, i) => items.RemoveAt(index), (v, i) => items.CheckRange(index));
+                    Enumerable.Range(1, maxCount).ForEachDo((v, i) => items.RemoveAt(index), whilePredicate: (v, i) => items.CheckRange(index));
                 } else
                 {
-                    ICollectionExtensions.Change(items, values, action, maxCount);
+                    (items as ICollection<TSource>).Change(values, action, maxCount);
                 }
             } else if(action == NotifyCollectionChangedAction.Replace)
             {
-                values?.ForEach((v, i) => items.Set(index++, v), whilePredicate: (v, i) => i < maxCount && items.CheckRange(index));
+                values?.ForEachDo((v, i) => items.Set(index++, v), whilePredicate: (v, i) => i < maxCount && items.CheckRange(index));
             } else
             {
-                ICollectionExtensions.Change(items, values, action, maxCount);
+                (items as ICollection<TSource>).Change(values, action, maxCount);
             }
         }
     }
-
-    public static List<TSource> GetRange<TSource>(this IEnumerable<TSource> items, int index, int count) => new Rect(new System.Windows.Point(index, 0), new Vector(count, 0)).Out(out var rect).Return(items.GetSelfOrEmpty().Skip((int)rect.Left).Take((int)rect.Width).ToList());
 
     public static void Set<TSource>(this IList<TSource> sources, int index, TSource value)
     {
@@ -54,7 +51,7 @@ public static partial class IListExtensions
                 list.Capacity = index + 8;
             } else
             {
-                Enumerable.Range(sources.Count, index - sources.Count + 8).ForEach(t => sources.Add(default));
+                Enumerable.Range(sources.Count, index - sources.Count + 8).ForEachDo(t => sources.Add(default));
             }
         }
 

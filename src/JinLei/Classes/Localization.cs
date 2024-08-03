@@ -1,16 +1,29 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Markup;
 
 using JinLei.Extensions;
 using JinLei.Utilities;
 
 namespace JinLei.Classes;
-public partial class Localization : DependencyObject
+
+public partial class Localization : TextBlock
 {
-    public Localization(string key = default, string value = default)
+    // todo:未实现
+    // Static constructor.
+    static Localization() => TextProperty.OverrideMetadata(typeof(Localization), new FrameworkPropertyMetadata(OnLanguageResourceChanged));
+
+    public Localization(string key = default, string text = default)
     {
         Key = key;
-        Value = value;
+        Text = text;
+    }
+
+    protected override void OnInitialized(EventArgs e)
+    {
+        OnLanguageResxPathChanged(new(LanguageResxPathProperty, default, GetLanguageResxPath(this)));
+        base.OnInitialized(e);
     }
 
     public virtual string Key
@@ -18,82 +31,134 @@ public partial class Localization : DependencyObject
         get => GetValue(KeyProperty).AsDynamicOrDefault();
         set => SetValue(KeyProperty, value);
     }
-    public static readonly DependencyProperty KeyProperty = DependencyProperty.Register(nameof(Key), ObjectExtensions.GetTypeFromCaller(nameof(Key)), ObjectExtensions.GetTypeFromCaller(string.Empty), new PropertyMetadata(ResourceChanged));
+    public static readonly DependencyProperty KeyProperty = DependencyPropertyUtility.Register(nameof(Key), new(OnLanguageResourceChanged));
 
-    public virtual string Value
+    protected static void OnLanguageResourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => d.AsOrDefault<Localization>()?.OnLanguageResourceChanged(e);
+
+    protected virtual void OnLanguageResourceChanged(DependencyPropertyChangedEventArgs e)
     {
-        get => GetValue(ValueProperty).AsDynamicOrDefault();
-        set => SetValue(ValueProperty, value);
-    }
-    public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(nameof(Value), ObjectExtensions.GetTypeFromCaller(nameof(Value)), ObjectExtensions.GetTypeFromCaller(string.Empty), new PropertyMetadata(ResourceChanged));
+        //Debugger.Launch();
 
-    public static void ResourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => d.AsOrDefault<Localization>()?.ResourceChangedImplementation(e);
-
-    public virtual void ResourceChangedImplementation(DependencyPropertyChangedEventArgs e)
-    {
-        if(Utilities.Utilities.IsInDesignMode && DesignModeStringResources.TryGetValueEatException(Key, out var value))
+        if(Utility.IsInDesignMode == false)
         {
-            if(Value.IsNull())
+            return;
+        }
+
+        var languageResourceBindingMode = GetLanguageResourceBindingMode(this);
+        if(languageResourceBindingMode == BindingMode.OneWay)
+        {
+            // todo: FileSystemWatcher监控源文件
+            // Resx <= (Key, Value)
+            return;
+        } else if(languageResourceBindingMode == BindingMode.TwoWay)
+        {
+            // todo: FileSystemWatcher监控源文件
+            // Resx <=> (Key, Value)
+            return;
+        }
+
+        var languageResxPath = GetLanguageResxPath(this);
+
+        if(StaticResources.TryGetValueEatException(languageResxPath, out var dictionary) == false)
+        {
+            StaticResources[languageResxPath] = dictionary = [];
+        }
+
+        var stringResources = dictionary[StringResourcesKey].AsOrDefault<Dictionary<string, string>>();
+
+        if(languageResourceBindingMode == BindingMode.OneTime)
+        {
+            // Resx => (Key, Value) OneTime
+            if(stringResources.TryGetValueEatException(Key, out var value))
             {
-                Value = value;
-            } else
+                Text = value;
+            }
+        } else if(languageResourceBindingMode == BindingMode.OneWayToSource)
+        {
+            // Resx <= (Key, Value)
+            if(Key.IsNull() == false)
             {
-                ResxWriter.Enabled = WriteResxOnResourceChanged;
+                stringResources[Key] = Text;
+                dictionary[ResxWriterKey].AsOrDefault<System.Timers.Timer>().Enabled = true;
             }
         }
     }
 
-    public static System.Timers.Timer ResxWriter { get; } = new System.Timers.Timer(5000) { AutoReset = false }.Do(t => t.Elapsed += delegate { ResxUtility.WriteFromItems(new(DefaultLangResxPath), DesignModeStringResources); });
-
     #region AttachedProperty
-    public static string DefaultLangResxPath { get; set; } = "StringResources.zh-CN.resx";
+    public static readonly DependencyProperty LanguageResxPathProperty = DependencyProperty.RegisterAttached(nameof(LanguageResxPathProperty).TrimEnd(DependencyPropertyUtility.Suffix), typeof(string), typeof(Localization), new FrameworkPropertyMetadata("StringResources.zh-CN.resx", FrameworkPropertyMetadataOptions.Inherits, OnLanguageResxPathChanged));
 
-    public static void SetDefaultLangResxPath(DependencyObject target, string value)
+    public static string GetLanguageResxPath(DependencyObject target) => target.GetValue(LanguageResxPathProperty).AsDynamicOrDefault();
+
+    public static void SetLanguageResxPath(DependencyObject target, string value) => target.SetCurrentValue(LanguageResxPathProperty, value);
+
+    protected static void OnLanguageResxPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => d.AsOrDefault<Localization>()?.OnLanguageResxPathChanged(e);
+
+    protected virtual void OnLanguageResxPathChanged(DependencyPropertyChangedEventArgs e)
     {
-        if(DefaultLangResxPath != value)
+        //Debugger.Launch();
+
+        if(Utility.IsInDesignMode == false)
         {
-            DefaultLangResxPath = value;
-            DesignModeStringResources = default;
+            return;
         }
+
+        var languageResxPath = e.NewValue.AsOrDefault<string>();
+
+        if(StaticResources.TryGetValueEatException(languageResxPath, out var dictionary) == false)
+        {
+            StaticResources[languageResxPath] = dictionary = [];
+        }
+
+        dictionary[StringResourcesKey] = ResxUtility.ReadToDictionary<string>(languageResxPath).Out(out var stringResources);
+        dictionary[ResxWriterKey] = new System.Timers.Timer(5000) { AutoReset = false }.Do(t => t.Elapsed += delegate
+        {
+            ResxUtility.WriteFromItems(languageResxPath, stringResources);
+        });
+        // todo: FileSystemWatcher监控源文件
     }
 
-    public static bool WriteResxOnResourceChanged { get; set; }
+    public static readonly DependencyProperty LanguageResourceBindingModeProperty = DependencyProperty.RegisterAttached(nameof(LanguageResourceBindingModeProperty).TrimEnd(DependencyPropertyUtility.Suffix), typeof(BindingMode), typeof(Localization), new FrameworkPropertyMetadata(BindingMode.OneTime, FrameworkPropertyMetadataOptions.Inherits));
 
-    public static void SetWriteResxOnDesignModeResourceChanged(DependencyObject target, bool value) => WriteResxOnResourceChanged = value;
+    public static BindingMode GetLanguageResourceBindingMode(DependencyObject target) => target?.GetValue(LanguageResourceBindingModeProperty).AsDynamicOrDefault();
+
+    public static void SetLanguageResourceBindingMode(DependencyObject target, BindingMode value) => target?.SetValue(LanguageResourceBindingModeProperty, value);
     #endregion
 
-    public static Dictionary<string, string> DesignModeStringResources
-    {
-        get => designModeAllStringResources[DefaultLangResxPath] ??= Utilities.Utilities.IsInDesignMode ? ResxUtility.ReadToDictionary<string>(new(DefaultLangResxPath)) : [];
-        protected set => designModeAllStringResources[DefaultLangResxPath] = value;
-    }
-    protected static Dictionary<string, Dictionary<string, string>> designModeAllStringResources = [];
+    protected static Dictionary<string, Dictionary<string, object>> StaticResources { get; set; } = [];
+
+    protected const string StringResourcesKey = "StringResources";
+    protected const string ResxWriterKey = "ResxWriter";
 }
 
 public partial class LocalizationExtension(string key = default, string defaultValue = default) : MarkupExtension
 {
     #region override
-    public override object ProvideValue(IServiceProvider serviceProvider) => Value;
+    public override object ProvideValue(IServiceProvider serviceProvider)
+    {
+        //Debugger.Launch();
+
+        var targetObject = serviceProvider.GetService(typeof(IProvideValueTarget)).AsOrDefault<IProvideValueTarget>().TargetObject.AsOrDefault<DependencyObject>();
+
+        Localization.SetLanguageResxPath(Localization, Localization.GetLanguageResxPath(targetObject));
+        Localization.SetLanguageResourceBindingMode(Localization, Localization.GetLanguageResourceBindingMode(targetObject));
+
+        Localization.Key = Key;
+        Localization.Text = Value;
+
+        return Value = Localization.Text;
+    }
     #endregion
 
     #region Property
     /// <summary>
     /// 语言资源Key
     /// </summary>
-    public virtual string Key
-    {
-        get => Localization.Key;
-        set => Localization.Key = value;
-    }
+    public virtual string Key { get; set; }
 
     /// <summary>
     /// 语言资源Value
     /// </summary>
-    public virtual string Value
-    {
-        get => Localization.Value;
-        set => Localization.Value = value;
-    }
+    public virtual string Value { get; set; }
     #endregion
 
     public virtual Localization Localization { get; protected set; } = new(key, defaultValue);

@@ -2,9 +2,15 @@
 using System.Reflection;
 
 namespace JinLei.Extensions;
+
+public static partial class MethodInfoExtensions
+{
+    public static TDelegate CreateDelegate<TDelegate>(this MethodInfo methodInfo, object target = default) where TDelegate : Delegate => methodInfo.CreateDelegate(typeof(TDelegate), target).AsDynamicOrDefault();
+}
+
 public static partial class DelegateExtensions
 {
-    private static TDelegate ToTDelegate<TDelegate>(this Delegate d, Converter<object[], object[]> paramsConverter = default, Delegate resultConverter = default) where TDelegate : Delegate
+    internal static TDelegate ToTDelegate<TDelegate>(this Delegate d, Converter<object[], object[]> paramsConverter = default, Delegate resultConverter = default) where TDelegate : Delegate
     {
         try
         {
@@ -45,16 +51,11 @@ public static partial class DelegateExtensions
         return default;
     }
 
-    private static TDelegate AddParams<TDelegate>(this Delegate d, params object[] paramObjects) where TDelegate : Delegate => d.ToTDelegate<TDelegate>((object[] @params) => @params.Take(@params.Length - paramObjects.Length).ToArray());
+    internal static TDelegate AddParams<TDelegate>(this Delegate d, params object[] paramObjects) where TDelegate : Delegate => d.ToTDelegate<TDelegate>((object[] @params) => @params.Take(@params.Length - paramObjects.Length).ToArray());
 
-    private static TDelegate SubParams<TDelegate>(this Delegate d, params object[] defalutParamObjects) where TDelegate : Delegate => d.ToTDelegate<TDelegate>((object[] @params) => @params.Take(@params.Length - defalutParamObjects.Length).Append(defalutParamObjects).ToArray());
+    internal static TDelegate SubParams<TDelegate>(this Delegate d, params object[] defalutParamObjects) where TDelegate : Delegate => d.ToTDelegate<TDelegate>((object[] @params) => @params.Take(@params.Length - defalutParamObjects.Length).Append(defalutParamObjects).ToArray());
 
-    private static TFunc ToFunc<TDelegate, TFunc, TResult>(this TDelegate d, TResult result = default) where TDelegate : Delegate where TFunc : Delegate => d.ToTDelegate<TFunc>(resultConverter: () => result);
+    internal static TFunc ToFunc<TDelegate, TFunc, TResult>(this TDelegate d, TResult result = default) where TDelegate : Delegate where TFunc : Delegate => d.ToTDelegate<TFunc>(resultConverter: () => result);
 
-    private static TAction ToAction<TDelegate, TAction>(this TDelegate d) where TDelegate : Delegate where TAction : Delegate => d.ToTDelegate<TAction>(resultConverter: (object result) => { });
-}
-
-public static class MethodInfoExtensions
-{
-    public static TDelegate CreateDelegate<TDelegate>(this MethodInfo methodInfo, object target = default) where TDelegate : Delegate => methodInfo.CreateDelegate(typeof(TDelegate), target) as TDelegate;
+    internal static TAction ToAction<TDelegate, TAction>(this TDelegate d) where TDelegate : Delegate where TAction : Delegate => d.ToTDelegate<TAction>(resultConverter: (object result) => { });
 }

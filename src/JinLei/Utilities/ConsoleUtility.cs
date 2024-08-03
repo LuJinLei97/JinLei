@@ -3,9 +3,10 @@
 using JinLei.Extensions;
 
 namespace JinLei.Utilities;
-public static partial class ConsoleUtility
+
+public partial class ConsoleUtility
 {
-    public static string TipAndReadLine(string tip = "Tip:") => (tip ?? string.Empty).Do(Console.Write).Return(Console.ReadLine());
+    public static string TipAndReadLine(string tip = "Tip:") => tip.Do(Console.Write).Do(Console.ReadLine);
 
     public static string ReadPath(string tip = "Path:") => TipAndReadLine(tip).Trim('"');
 
