@@ -12,7 +12,10 @@ public partial class Localization : TextBlock
 {
     // todo:未实现
     // Static constructor.
-    static Localization() => TextProperty.OverrideMetadata(typeof(Localization), new FrameworkPropertyMetadata(OnLanguageResourceChanged));
+    static Localization()
+    {
+        TextProperty.OverrideMetadata(typeof(Localization), new FrameworkPropertyMetadata(OnLanguageResourceChanged));
+    }
 
     public Localization(string key = default, string text = default)
     {
